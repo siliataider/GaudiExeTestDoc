@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>
+        Gaudi Testing Infrastructure: Transition from QMTest to Pytest - CodiMD
+    </title>
+    <link rel="icon" type="image/png" href="https://codimd.web.cern.ch/favicon.png">
+    <link rel="apple-touch-icon" href="https://codimd.web.cern.ch/apple-touch-icon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.0/css/bootstrap.min.css" integrity="sha256-H0KfTigpUV+0/5tn2HXC0CPwhhDhWgSawJdnFd0CGCo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fork-awesome/1.1.3/css/fork-awesome.min.css" integrity="sha256-ZhApazu+kejqTYhMF+1DzNKjIzP7KXu6AzyXcC1gMus=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" integrity="sha256-3iu9jgsy9TpTwXKb7bNQzqWekRX7pPK+2OLj3R922fo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism.min.css" integrity="sha256-vtR0hSWRc3Tb26iuN2oZHt3KRUomwTufNIf5/4oeCyg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github-gist.min.css" integrity="sha256-tAflq+ymku3Khs+I/WcAneIlafYgDiOQ9stIHH985Wo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/css/basic/emojify.min.css" integrity="sha256-UOrvMOsSDSrW6szVLe8ZDZezBxh5IoIfgTwdNDgTjiU=" crossorigin="anonymous" />
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400italic,600,600italic,300italic,300|Source+Serif+Pro|Source+Code+Pro:400,300,500&subset=latin,latin-ext);.markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;font-size:16px;line-height:1.5;word-wrap:break-word}.markdown-body:after,.markdown-body:before{display:table;content:""}.markdown-body:after{clear:both}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a:not([href]){color:inherit;text-decoration:none}.markdown-body .absent{color:#c00}.markdown-body .anchor{float:left;padding-right:4px;margin-left:-20px;line-height:1}.markdown-body .anchor:focus{outline:none}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin-top:0;margin-bottom:16px}.markdown-body hr{height:.25em;padding:0;margin:24px 0;background-color:#e7e7e7;border:0}.markdown-body blockquote{padding:0 1em;color:#777;border-left:.25em solid #ddd}.night .markdown-body blockquote{color:#bcbcbc}.markdown-body blockquote>:first-child{margin-top:0}.markdown-body blockquote>:last-child{margin-bottom:0}.markdown-body .loweralpha{list-style-type:lower-alpha}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{margin-top:24px;margin-bottom:16px;font-weight:600;line-height:1.25}.night .markdown-body h1,.night .markdown-body h2,.night .markdown-body h3,.night .markdown-body h4,.night .markdown-body h5,.night .markdown-body h6{color:#ddd}.markdown-body h1 .fa-link,.markdown-body h2 .fa-link,.markdown-body h3 .fa-link,.markdown-body h4 .fa-link,.markdown-body h5 .fa-link,.markdown-body h6 .fa-link{color:#000;vertical-align:middle;visibility:hidden;font-size:16px}.night .markdown-body h1 .fa-link,.night .markdown-body h2 .fa-link,.night .markdown-body h3 .fa-link,.night .markdown-body h4 .fa-link,.night .markdown-body h5 .fa-link,.night .markdown-body h6 .fa-link{color:#fff}.markdown-body h1:hover .anchor,.markdown-body h2:hover .anchor,.markdown-body h3:hover .anchor,.markdown-body h4:hover .anchor,.markdown-body h5:hover .anchor,.markdown-body h6:hover .anchor{text-decoration:none}.markdown-body h1:hover .anchor .fa-link,.markdown-body h2:hover .anchor .fa-link,.markdown-body h3:hover .anchor .fa-link,.markdown-body h4:hover .anchor .fa-link,.markdown-body h5:hover .anchor .fa-link,.markdown-body h6:hover .anchor .fa-link{visibility:visible}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{font-size:2em}.markdown-body h1,.markdown-body h2{padding-bottom:.3em;border-bottom:1px solid #eee}.markdown-body h2{font-size:1.5em}.markdown-body h3{font-size:1.25em}.markdown-body h4{font-size:1em}.markdown-body h5{font-size:.875em}.markdown-body h6{font-size:.85em;color:#777}.markdown-body ol,.markdown-body ul{padding-left:2em}.markdown-body ol.no-list,.markdown-body ul.no-list{padding:0;list-style-type:none}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-top:0;margin-bottom:0}.markdown-body li>p{margin-top:16px}.markdown-body li+li{margin-top:.25em}.markdown-body dl{padding:0}.markdown-body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}.markdown-body dl dd{padding:0 16px;margin-bottom:16px}.markdown-body table{display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{padding:6px 13px;border:1px solid #ddd}.markdown-body table tr{background-color:#fff;border-top:1px solid #ccc}.night .markdown-body table tr{background-color:#5f5f5f}.markdown-body table tr:nth-child(2n){background-color:#f8f8f8}.night .markdown-body table tr:nth-child(2n){background-color:#4f4f4f}.markdown-body img{max-width:100%;box-sizing:content-box;background-color:#fff}.markdown-body img[align=right]{padding-left:20px}.markdown-body img[align=left]{padding-right:20px}.markdown-body .emoji{max-width:none;vertical-align:text-top;background-color:transparent}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{display:block;float:left;width:auto;padding:7px;margin:13px 0 0;overflow:hidden;border:1px solid #ddd}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{display:block;padding:5px 0 0;clear:both;color:#333}.markdown-body span.align-center{display:block;overflow:hidden;clear:both}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{display:block;overflow:hidden;clear:both}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{padding:.2em 0;margin:0;font-size:85%;background-color:rgba(0,0,0,.04);border-radius:3px}.night .markdown-body code,.night .markdown-body tt{color:#eee;background-color:hsla(0,0%,90.2%,.36)}.markdown-body code:after,.markdown-body code:before,.markdown-body tt:after,.markdown-body tt:before{letter-spacing:-.2em;content:"\A0"}.markdown-body code br,.markdown-body tt br{display:none}.markdown-body del code{text-decoration:inherit}.markdown-body pre{word-wrap:normal}.markdown-body pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:transparent;border:0}.markdown-body .highlight{margin-bottom:16px}.markdown-body .highlight pre{margin-bottom:0;word-break:normal}.markdown-body .highlight pre,.markdown-body pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f7f7f7;border-radius:3px}.markdown-body pre code,.markdown-body pre tt{display:inline;max-width:auto;padding:0;margin:0;overflow:visible;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}.markdown-body pre code:after,.markdown-body pre code:before,.markdown-body pre tt:after,.markdown-body pre tt:before{content:normal}.markdown-body .csv-data td,.markdown-body .csv-data th{padding:5px;overflow:hidden;font-size:12px;line-height:1;text-align:left;white-space:nowrap}.markdown-body .csv-data .blob-line-num{padding:10px 8px 9px;text-align:right;background:#fff;border:0}.markdown-body .csv-data tr{border-top:0}.markdown-body .csv-data th{font-weight:700;background:#f8f8f8;border-top:0}.markdown-body kbd{display:inline-block;padding:3px 5px;font-size:11px;line-height:10px;color:#555;vertical-align:middle;background-color:#fcfcfc;border:1px solid;border-color:#ccc #ccc #bbb;border-radius:3px;box-shadow:inset 0 -1px 0 #bbb}.news .alert .markdown-body blockquote{padding:0 0 0 40px;border:0}.activity-tab .news .alert .commits,.activity-tab .news .markdown-body blockquote{padding-left:0}.task-list-item{list-style-type:none}.task-list-item label{font-weight:400}.task-list-item.enabled label{cursor:pointer}.task-list-item+.task-list-item{margin-top:3px}.task-list-item-checkbox{float:left;margin:.31em 0 .2em -1.3em!important;vertical-align:middle;cursor:default!important}.markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;padding-top:40px;padding-bottom:40px;max-width:758px;overflow:visible!important}.markdown-body pre{border:inherit!important}.night .markdown-body pre{filter:invert(100%)}.markdown-body code{color:inherit!important}.markdown-body pre code .wrapper{display:-webkit-inline-flex;display:-moz-inline-flex;display:-ms-inline-flex;display:-o-inline-flex;display:inline-flex}.markdown-body pre code .gutter{float:left;overflow:hidden;-webkit-user-select:none;user-select:none}.markdown-body pre code .gutter.linenumber{text-align:right;position:relative;display:inline-block;cursor:default;z-index:4;padding:0 8px 0 0;min-width:20px;box-sizing:content-box;color:#afafaf!important;border-right:3px solid #6ce26c!important}.markdown-body pre code .gutter.linenumber>span:before{content:attr(data-linenumber)}.markdown-body pre code .code{float:left;margin:0 0 0 16px}.markdown-body .gist .line-numbers{border-left:none;border-top:none;border-bottom:none}.markdown-body .gist .line-data{border:none}.markdown-body .gist table{border-spacing:0;border-collapse:inherit!important}.night .markdown-body .gist table tr:nth-child(2n){background-color:#ddd}.markdown-body code[data-gist-id]{background:none;padding:0;filter:invert(100%)}.markdown-body code[data-gist-id]:after,.markdown-body code[data-gist-id]:before{content:""}.markdown-body code[data-gist-id] .blob-num{border:unset}.markdown-body code[data-gist-id] table{overflow:unset;margin-bottom:unset}.markdown-body code[data-gist-id] table tr{background:unset}.markdown-body[dir=rtl] pre{direction:ltr}.markdown-body[dir=rtl] code{direction:ltr;unicode-bidi:embed}.markdown-body .alert>p{margin-bottom:0}.markdown-body pre.abc,.markdown-body pre.flow-chart,.markdown-body pre.geo,.markdown-body pre.graphviz,.markdown-body pre.mermaid,.markdown-body pre.sequence-diagram,.markdown-body pre.vega{text-align:center;background-color:inherit;border-radius:0;white-space:inherit}.night .markdown-body pre.graphviz .graph>polygon{fill:#333}.night .markdown-body pre.mermaid .sectionTitle,.night .markdown-body pre.mermaid .titleText,.night .markdown-body pre.mermaid text{fill:#fff}.markdown-body pre.abc>code,.markdown-body pre.flow-chart>code,.markdown-body pre.graphviz>code,.markdown-body pre.mermaid>code,.markdown-body pre.sequence-diagram>code,.markdown-body pre.vega>code{text-align:left}.markdown-body pre.abc>svg,.markdown-body pre.flow-chart>svg,.markdown-body pre.graphviz>svg,.markdown-body pre.mermaid>svg,.markdown-body pre.sequence-diagram>svg,.markdown-body pre.vega>svg{max-width:100%;height:100%}.night .markdown-body .abc path{fill:#eee}.night .markdown-body .abc path.note_selected{fill:##4DD0E1}.night tspan{fill:#fefefe}.night pre rect{fill:transparent}.night pre.flow-chart path,.night pre.flow-chart rect{stroke:#fff}.markdown-body pre>code.wrap{white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space:-o-pre-wrap;word-wrap:break-word}.markdown-body .alert>p,.markdown-body .alert>ul{margin-bottom:0}.markdown-body summary{display:list-item}.markdown-body summary:focus{outline:none}.markdown-body details summary{cursor:pointer}.markdown-body details:not([open])>:not(summary){display:none}.markdown-body figure{margin:1em 40px}.markdown-body img{background-color:transparent}.vimeo,.youtube{cursor:pointer;display:table;text-align:center;background-position:50%;background-repeat:no-repeat;background-size:contain;background-color:#000;overflow:hidden}.vimeo,.youtube{position:relative;width:100%}.youtube{padding-bottom:56.25%}.vimeo img{width:100%;object-fit:contain;z-index:0}.youtube img{object-fit:cover;z-index:0}.vimeo iframe,.youtube iframe,.youtube img{width:100%;height:100%;position:absolute;top:0;left:0}.vimeo iframe,.youtube iframe{vertical-align:middle;z-index:1}.vimeo .icon,.youtube .icon{position:absolute;height:auto;width:auto;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;opacity:.3;-webkit-transition:opacity .2s;transition:opacity .2s;z-index:0}.vimeo:hover .icon,.youtube:hover .icon{opacity:.6;-webkit-transition:opacity .2s;transition:opacity .2s}.slideshare .inner,.speakerdeck .inner{position:relative;width:100%}.slideshare .inner iframe,.speakerdeck .inner iframe{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%}.geo-map{width:100%;height:250px}.markmap-container{height:300px}.markmap-container>svg{width:100%;height:100%}.MJX_Assistive_MathML{display:none}.ui-infobar{position:relative;z-index:2;max-width:758px;margin-top:25px;margin-bottom:-25px;color:#777}.toc .invisable-node{list-style-type:none}.ui-toc{position:fixed;bottom:20px;z-index:10000}.ui-toc-label{opacity:.9;background-color:#ccc;border:none}.ui-toc-label,.ui-toc .open .ui-toc-label{-webkit-transition:opacity .2s;transition:opacity .2s}.ui-toc .open .ui-toc-label{opacity:1;color:#5f5f5f}.ui-toc-label:focus{opacity:1;background-color:#ccc;color:#000}.ui-toc-label:hover{opacity:1;background-color:#ccc;-webkit-transition:opacity .2s;transition:opacity .2s}.ui-toc-dropdown{margin-top:23px;margin-bottom:20px;padding-left:10px;padding-right:10px;max-width:45vw;width:25vw;max-height:70vh;overflow:auto;text-align:inherit}.ui-toc-dropdown>.toc{max-height:calc(70vh - 100px);overflow:auto}.ui-toc-dropdown[dir=rtl] .nav{padding-right:0;letter-spacing:.0029em}.ui-toc-dropdown a{overflow:hidden;text-overflow:ellipsis;white-space:pre}.ui-toc-dropdown .nav>li>a{display:block;padding:4px 20px;font-size:13px;font-weight:500;color:#767676}.ui-toc-dropdown .nav>li:first-child:last-child>ul,.ui-toc-dropdown .toc.expand ul{display:block}.ui-toc-dropdown .nav>li>a:focus,.ui-toc-dropdown .nav>li>a:hover{padding-left:19px;color:#000;text-decoration:none;background-color:transparent;border-left:1px solid #000}.night .ui-toc-dropdown .nav>li>a:focus,.night .ui-toc-dropdown .nav>li>a:hover{color:#fff;border-left-color:#fff}.ui-toc-dropdown[dir=rtl] .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav>li>a:hover{padding-right:19px;border-left:none;border-right:1px solid #000}.ui-toc-dropdown .nav>.active:focus>a,.ui-toc-dropdown .nav>.active:hover>a,.ui-toc-dropdown .nav>.active>a{padding-left:18px;font-weight:700;color:#000;background-color:transparent;border-left:2px solid #000}.night .ui-toc-dropdown .nav>.active:focus>a,.night .ui-toc-dropdown .nav>.active:hover>a,.night .ui-toc-dropdown .nav>.active>a{color:#fff;border-left:2px solid #fff}.ui-toc-dropdown[dir=rtl] .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav>.active>a{padding-right:18px;border-left:none;border-right:2px solid #000}.ui-toc-dropdown .nav .nav{display:none;padding-bottom:10px}.ui-toc-dropdown .nav>.active>ul{display:block}.ui-toc-dropdown .nav .nav>li>a{padding-top:1px;padding-bottom:1px;padding-left:30px;font-size:12px;font-weight:400}.night .ui-toc-dropdown .nav>li>a{color:#aaa}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a{padding-right:30px}.ui-toc-dropdown .nav .nav>li>ul>li>a{padding-top:1px;padding-bottom:1px;padding-left:40px;font-size:12px;font-weight:400}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a{padding-right:40px}.ui-toc-dropdown .nav .nav>li>ul>li>ul>li>a{padding-top:1px;padding-bottom:1px;padding-left:50px;font-size:12px;font-weight:400}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>ul>li>a{padding-right:50px}.ui-toc-dropdown .nav .nav>li>ul>li>ul>li>ul>li>a{padding-top:1px;padding-bottom:1px;padding-left:60px;font-size:12px;font-weight:400}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>ul>li>ul>li>a{padding-right:60px}.ui-toc-dropdown .nav .nav>li>a:focus,.ui-toc-dropdown .nav .nav>li>a:hover{padding-left:29px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:hover{padding-right:29px}.ui-toc-dropdown .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown .nav .nav>li>ul>li>a:hover{padding-left:39px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:hover{padding-right:39px}.ui-toc-dropdown .nav .nav>li>ul>li>ul>li>a:focus,.ui-toc-dropdown .nav .nav>li>ul>li>ul>li>a:hover{padding-left:49px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>ul>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>ul>li>a:hover{padding-right:49px}.ui-toc-dropdown .nav .nav>li>ul>li>ul>li>ul>li>a:focus,.ui-toc-dropdown .nav .nav>li>ul>li>ul>li>ul>li>a:hover{padding-left:59px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>ul>li>ul>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>ul>li>ul>li>a:hover{padding-right:59px}.ui-toc-dropdown .nav .nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>a{padding-left:28px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>a{padding-right:28px}.ui-toc-dropdown .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>a{padding-left:38px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>a{padding-right:38px}.ui-toc-dropdown .nav .nav>.active>.nav>.active>.nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>.nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>.nav>.active>a{padding-left:48px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.active>.nav>.nav>.active>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>.nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>.nav>.active:hover>a{padding-right:48px}.ui-toc-dropdown .nav .nav>.active>.nav>.active>.nav>.active>.nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>.nav>.active>.nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>.nav>.active>.nav>.active>a{padding-left:58px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.active>.nav>.nav>.active>.nav>.active>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>.nav>.active>.nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>.nav>.active>.nav>.active:hover>a{padding-right:58px}.markdown-body[lang^=ja]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Helvetica,Arial,Hiragino Kaku Gothic Pro,"\30D2\30E9\30AE\30CE\89D2\30B4   Pro W3",Osaka,Meiryo,"\30E1\30A4\30EA\30AA",MS Gothic,"\FF2D\FF33   \30B4\30B7\30C3\30AF",sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}.ui-toc-dropdown[lang^=ja]{font-family:Source Sans Pro,Helvetica,Arial,Meiryo UI,MS PGothic,"\FF2D\FF33   \FF30\30B4\30B7\30C3\30AF",sans-serif}.markdown-body[lang=zh-tw]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Helvetica,Arial,PingFang TC,Microsoft JhengHei,"\5FAE\8EDF\6B63\9ED1",sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}.ui-toc-dropdown[lang=zh-tw]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft JhengHei UI,"\5FAE\8EDF\6B63\9ED1UI",sans-serif}.markdown-body[lang=zh-cn]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Helvetica,Arial,PingFang SC,Microsoft YaHei,"\5FAE\8F6F\96C5\9ED1",sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}.ui-toc-dropdown[lang=zh-cn]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft YaHei UI,"\5FAE\8F6F\96C5\9ED1UI",sans-serif}.ui-affix-toc{position:fixed;top:0;max-width:15vw;max-height:70vh;overflow:auto}.back-to-top,.expand-toggle,.go-to-bottom{display:block;padding:4px 10px;margin-top:10px;margin-left:10px;font-size:12px;font-weight:500;color:rgba(0,0,0,.85)}.back-to-top:focus,.back-to-top:hover,.expand-toggle:focus,.expand-toggle:hover,.go-to-bottom:focus,.go-to-bottom:hover{color:#563d7c;text-decoration:none}.back-to-top,.go-to-bottom{margin-top:0}.ui-user-icon{width:20px;height:20px;display:block;border-radius:3px;margin-top:2px;margin-bottom:2px;margin-right:5px;background-position:50%;background-repeat:no-repeat;background-size:contain}.ui-user-icon.small{width:18px;height:18px;display:inline-block;vertical-align:middle;margin:0 0 .2em}small span{line-height:22px}small .dropdown{display:inline-block}small .dropdown a:focus,small .dropdown a:hover{text-decoration:none}.unselectable{-moz-user-select:none;-khtml-user-select:none;-webkit-user-select:none;-o-user-select:none;user-select:none}.night .navbar{background:#333;border-bottom-color:#333;color:#eee}.night .navbar a{color:#eee}@media print{blockquote,div,img,pre,table{page-break-inside:avoid!important}a[href]:after{font-size:12px!important}}.markdown-body.slides{position:relative;z-index:1;color:#222}.markdown-body.slides:before{content:"";display:block;position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;background-color:currentColor;box-shadow:0 0 0 50vw}.markdown-body.slides section[data-markdown]{position:relative;margin-bottom:1.5em;background-color:#fff;text-align:center}.markdown-body.slides section[data-markdown] code{text-align:left}.markdown-body.slides section[data-markdown]:before{content:"";display:block;padding-bottom:56.23%}.markdown-body.slides section[data-markdown]>div:first-child{position:absolute;top:50%;left:1em;right:1em;transform:translateY(-50%);max-height:100%;overflow:hidden}.markdown-body.slides section[data-markdown]>ul{display:inline-block}.markdown-body.slides>section>section+section:after{content:"";position:absolute;top:-1.5em;right:1em;height:1.5em;border:3px solid #777}body{font-smoothing:subpixel-antialiased!important;-webkit-font-smoothing:subpixel-antialiased!important;-moz-osx-font-smoothing:auto!important;text-shadow:0 0 1em transparent,1px 1px 1.2px rgba(0,0,0,.004);-webkit-overflow-scrolling:touch;font-family:Source Sans Pro,Helvetica,Arial,sans-serif;letter-spacing:.025em}.focus,:focus{outline:none!important}::-moz-focus-inner{border:0!important}body.modal-open{overflow-y:auto;padding-right:0!important}
+    </style>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js" integrity="sha256-3Jy/GbSLrg0o9y5Z5n1uw0qxZECH7C6OQpVBgNFYa0g=" crossorigin="anonymous"></script>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js" integrity="sha256-8E4Is26QH0bD52WoQpcB+R/tcWQtpzlCojrybUd7Mxo=" crossorigin="anonymous"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div id="doc" class="markdown-body container-fluid"><h1 id="Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest"><a class="anchor hidden-xs" href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest"><i class="fa fa-link"></i></a>Gaudi Testing Infrastructure: Transition from QMTest to Pytest</h1><h1 id="Table-of-contents"><a class="anchor hidden-xs" href="#Table-of-contents" title="Table-of-contents"><i class="fa fa-link"></i></a>Table of contents</h1><ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#gaudiexetest"><code>GaudiTesting.GaudiExeTest</code>: The Gaudi Extension to Pytest</a>
+<ul>
+<li><a href="#key-features">Key Features</a></li>
+</ul>
+</li>
+<li><a href="#test-configuration">Test Configuration</a></li>
+<li><a href="#output-management-exception-handling">Output Management &amp; Exception Handling</a></li>
+<li><a href="#standard-tests">Standard Tests</a></li>
+<li><a href="#custom-tests">Custom Tests</a></li>
+<li><a href="#skipping-tests">Skipping Tests</a></li>
+<li><a href="#reporting">Reporting</a></li>
+<li><a href="#structured-reference-files">Structured Reference Files</a></li>
+<li><a href="#transition-from-qmtest-to-pytest">Transition from QMTest to Pytest</a>
+<ul>
+<li><a href="#automated-transition-scripts">Automated Transition Scripts</a></li>
+<li><a href="#reftoyaml_converterpy"><code>ref_to_yaml_converter.py</code></a></li>
+<li><a href="#qmt_to_pytest_converterpy"><code>qmt_to_pytest_converter.py</code></a></li>
+</ul>
+</li>
+<li><a href="#some-examples">Some Examples</a>
+<ul>
+<li><a href="#algsequencer"><code>algsequencer</code></a></li>
+<li><a href="#slimeventloop-scheduled-stop"><code>slimeventloop_scheduled_stop</code></a></li>
+<li><a href="#superalg-dynamic-graph"><code>superalg_dynamic_graph</code></a></li>
+<li><a href="#toolhandles"><code>toolhandles</code></a></li>
+<li><a href="#custom-factory"><code>custom_factory</code></a></li>
+<li><a href="#heapprofiler"><code>heapprofiler</code></a></li>
+</ul>
+</li>
+</ol><p><a id="introduction" target="_blank" rel="noopener"></a></p><h1 id="Introduction"><a class="anchor hidden-xs" href="#Introduction" title="Introduction"><i class="fa fa-link"></i></a>Introduction</h1><blockquote>
+<p>The importance of tests in software development is known to everybody… or it should, so I’ll not talk about it.<br>
+To effectively run tests for a piece of software, it is important to have a testing infrastructure. Such an infrastructure should allow the developer to run the tests and check the results in the simplest possible way (if not by clicking on a button, it should be by executing a simple command). Adding new tests should be easy as well, so the introduction of tests for newly discovered bugs will not require much time, that can be devoted, instead, to fix them.</p>
+</blockquote><p>So far we have been using QMTest, which was easily extended to cover the special needs of Gaudi. However, with time we realized it had some non-negligible flaws:</p><ul>
+<li>The xml format is too verbose and not human readable.</li>
+<li>We have Python code inside an xml file (for the options and the custom validators).</li>
+<li>We are contrained to putting all the validation logic into one function that tests different parts and reports multiple failures.</li>
+<li>Using results and causes objects to report to <code>ctest</code>.</li>
+</ul><p>To address these issues we have now developed a new testing infrastructure based on Pytest, a modern and powerful testing framework that offers more flexibility and simplicity. The new infrastructure offers:</p><ul>
+<li>Simple syntax for cleaner code.</li>
+<li>Multiple small and concise test cases.</li>
+<li>Fixtures for test customization.</li>
+<li>Plugins for extensibility.</li>
+</ul><p><a id="gaudiexetest" target="_blank" rel="noopener"></a></p><h1 id="GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest"><a class="anchor hidden-xs" href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest"><i class="fa fa-link"></i></a>GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</h1><p>To cater to Gaudi’s specific needs, we have developed a custom test class for Pytest: <code>GaudiTesting.GaudiExeTest</code>.<br>
+To benefit from its features, you need to write a test class that inherits from this base class, to get started:</p><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span></div><div class="code"><span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestExample</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    ...
+</div></div></code></pre><p><a id="key-features" target="_blank" rel="noopener"></a></p><h2 id="Key-Features"><a class="anchor hidden-xs" href="#Key-Features" title="Key-Features"><i class="fa fa-link"></i></a>Key Features</h2><ul>
+<li><strong>Standard Output and Error Handling</strong>: Keep the standard output. If the application fails, the standard error is kept and gdb is attached to the process to get the stack trace for debugging.</li>
+<li><strong>Platform-Specific Structured Reference Files</strong>: Allow comparison of stdout, stderr, histograms and ttrees with structured reference files, with platform specific extensions. See <a href="#structured-reference-files">Structured Reference Files</a></li>
+<li><strong>Python Script Execution</strong>.</li>
+<li><strong>Default Output Validation</strong>: Auto-run default validation tests (can be disabled). See <a href="#standard-tests">Standard Tests</a></li>
+<li><strong>Custom Output Validation</strong>: You can add your custom tests and validation logic. See <a href="#custom-tests">Custom Tests</a></li>
+<li><strong>Fixtures</strong>: A set of features are available to make it easier to add custom tests and access the applciation output. See <a href="#custom-tests">Custom Tests</a></li>
+<li><strong>Working Directory Specification</strong>: By default, the tests run in a pytest temporary directory. A different one can be specified.</li>
+<li><strong>Direct Option Specification</strong>: Allows specifying options directly in the test class.</li>
+</ul><p><a id="test-configuration" target="_blank" rel="noopener"></a></p><h1 id="Test-Configuration"><a class="anchor hidden-xs" href="#Test-Configuration" title="Test-Configuration"><i class="fa fa-link"></i></a>Test Configuration</h1><p>Tests are configured through class attributes:</p><ul>
+<li><code>command</code>: A list specifying the command line program and arguments.</li>
+</ul><pre><code class="py hljs"><span class="hljs-attr">command</span> = [<span class="hljs-string">'gaudirun.py'</span>, <span class="hljs-string">'--option1'</span>, <span class="hljs-string">'value'</span>]
+</code></pre><ul>
+<li><code>popenKwargs</code>: Additional subprocess arguments can be specified through popenKwargs. See <a href="https://docs.python.org/3/library/subprocess.html#popen-constructor" target="_blank" rel="noopener">Popen Constructor</a></li>
+</ul><pre><code class="py hljs"><span class="hljs-attr">popenKwargs</span> = {<span class="hljs-string">'key'</span>: value}
+</code></pre><ul>
+<li><code>environment</code>: You can customize the execution environment by setting the environment attribute, which accepts a list of key=value strings. You can use  helper functions for more complex handling (update_env, expand_vars_from, unset_vars).</li>
+</ul><pre><code class="pyth hljs"><span class="hljs-attr">environment</span> = [<span class="hljs-string">'LD_LIBRARY_PATH=/path/to/libs'</span>]
+</code></pre><p>or:</p><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span></div><div class="code"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_env</span><span class="hljs-params">(self, env)</span>:</span>
+        self.unset_vars(env, [<span class="hljs-string">"GAUDIAPPNAME"</span>, <span class="hljs-string">"GAUDIAPPVERSION"</span>])
+        env[<span class="hljs-string">"LD_LIBRARY_PATH"</span>] = self.expand_vars_from( <span class="hljs-string">"$BASE_DIR/lib:$BASE_DIR/plugins:$LD_LIBRARY_PATH"</span>, env)
+</div></div></code></pre><ul>
+<li><code>cwd</code>: You can configure your test to run in a specified directory by setting cwd. By default, a pytest temporary directory is used.</li>
+</ul><pre><code class="py hljs"><span class="hljs-attr">cwd</span> = <span class="hljs-string">'/path/to/directory'</span>
+</code></pre><ul>
+<li><code>reference</code>: You can specify the path to a yaml reference file containing reference blocks of stdout, stderr, histograms and ttrees.</li>
+</ul><pre><code class="py hljs"><span class="hljs-attr">reference</span> = <span class="hljs-string">'test_reference.yaml'</span>
+</code></pre><ul>
+<li><code>timeout</code>: You can specify a timeout in seconds, after which the application will terminate and the tests will report a failure. The default value is 600s.</li>
+</ul><pre><code class="py hljs"><span class="hljs-attr">timeout</span> = <span class="hljs-number">300</span>
+</code></pre><ul>
+<li><code>returncode</code>: You can specify an expected returncode. The default expected value is 0.</li>
+</ul><pre><code class="py hljs"><span class="hljs-attr">returncode</span> = <span class="hljs-number">4</span>
+</code></pre><ul>
+<li><code>options()</code> or <code>options</code>: Test options are defined in functions for pyopts or as strings for opts or as dictionaries for jsonopts. They will be put in a temporary file with the corresponding extension and appended to the command.</li>
+</ul><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span></div><div class="code"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">options</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">from</span> Configurables <span class="hljs-keyword">import</span> GetDataAlg, MyAlg
+
+    alg = MyAlg()
+    AppMgr(TopAlg=[alg], EvtSel=<span class="hljs-string">"NONE"</span>, EvtMax=<span class="hljs-number">1</span>)
+    ...
+</div></div></code></pre><p>or:</p><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span></div><div class="code">options = <span class="hljs-string">"""
+        ApplicationMgr.EvtMax = 1L;
+        """</span>
+</div></div></code></pre><p><mark><strong>Note:</strong></mark></p><ul>
+<li>Paths for command arguments and reference files are resolved <strong>relative to the file where the test class is defined</strong>.</li>
+<li>There is no default executable; tests must explicitly specify the executable, such as <a href="http://gaudirun.py" target="_blank" rel="noopener">gaudirun.py</a> or Gaudi.exe.</li>
+</ul><p><a id="output-management-exception-handling" target="_blank" rel="noopener"></a></p><h1 id="Output-Management-amp-Exception-Handling"><a class="anchor hidden-xs" href="#Output-Management-amp-Exception-Handling" title="Output-Management-amp-Exception-Handling"><i class="fa fa-link"></i></a>Output Management &amp; Exception Handling</h1><ul>
+<li><strong>Stream Capping</strong>: <code>stdout</code> and <code>stderr</code> are capped at <strong>100MB</strong>.</li>
+<li><strong>Exceptions</strong>: timeouts and exceeded stream size limits are reported through <code>ProcessTimeoutError</code> and <code>ExceededStreamError</code> exceptions.</li>
+<li>If such errors occur, <code>testFixtureSetup</code> will <mark><strong>fail</strong></mark> after reporting all relevant information, including the failure. <mark><strong>All other tests are skipped</strong></mark>.</li>
+</ul><p><a id="standard-tests" target="_blank" rel="noopener"></a></p><h1 id="Standard-Tests"><a class="anchor hidden-xs" href="#Standard-Tests" title="Standard-Tests"><i class="fa fa-link"></i></a>Standard Tests</h1><p>By default, <code>GaudiExeTest</code> will make sure a set of tests will run:</p><ul>
+<li><code>test_stdout</code>: will run only if a reference file is provided. Will preprocess the standard output of the application and compare it to the reference block. Default preprocessing of outputs can be overridden by redefining the preprocessor attribute</li>
+</ul><pre><code class="py hljs">preprocessor = (normalizeTestSuite + LineSkipper(regexps = [<span class="hljs-string">r'INFO png file .* has been created'</span>]))
+</code></pre><ul>
+<li><code>test_histos</code>: same.</li>
+<li><code>test_ttrees</code>: same.</li>
+<li><code>tets_stderr</code>: if a reference is procided, validates it, otherwise checks if stderr is empty.</li>
+<li><code>test_returncode</code>: if an expected value is provided, validates it, otherwise checks if the return code is 0 in case.</li>
+</ul><h2 id="Example0"><a class="anchor hidden-xs" href="#Example0" title="Example0"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span></div><div class="code"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestDefaults</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">'Gaudi.exe'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
+    reference = <span class="hljs-string">'my_reference.yaml'</span>
+</div></div></code></pre><p>Just by writing this, all the default tests will run without any additional configuration.</p><p><a id="custom-tests" target="_blank" rel="noopener"></a></p><h1 id="Custom-Tests"><a class="anchor hidden-xs" href="#Custom-Tests" title="Custom-Tests"><i class="fa fa-link"></i></a>Custom Tests</h1><p>Additional custom tests can be added:</p><ul>
+<li>Some utilities are provided like <code>find_reference_block``````, count_error_lines</code>, and <code>validate_json_with_reference</code>.</li>
+<li>Some <strong>fixtures</strong> are provided as well to easily access the application’s output and use it in the tests:
+<ul>
+<li><code>stdout</code>: the application’s standard outpout</li>
+<li><code>stderr</code>: the application’s standard error if any</li>
+<li><code>returncode</code>: the application’s return code</li>
+<li><code>completed_process</code>: the completed process returned by subprocess.popen</li>
+<li><code>cwd</code>: the directory in which the test was executed</li>
+</ul>
+</li>
+</ul><h2 id="Example1"><a class="anchor hidden-xs" href="#Example1" title="Example1"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span>
+<span data-linenumber="10"></span>
+<span data-linenumber="11"></span></div><div class="code"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCustom</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">'gaudirun.py'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
+    
+    <span class="hljs-comment"># Add extra validation</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_count_error_lines</span><span class="hljs-params">(self, stdout)</span>:</span>
+        GaudiExeTest.count_error_lines({}, stdout.decode())
+	
+    <span class="hljs-comment"># Override the default test</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_stdout</span><span class="hljs-params">(self, monkeypatch)</span>:</span>
+        monkeypatch.chdir(self.cwd)
+        <span class="hljs-keyword">assert</span> self.preprocessor(open(<span class="hljs-string">"myAppOutput.csv"</span>).read()) == self.preprocessor(stdout.decode(<span class="hljs-string">"utf-8"</span>, errors=<span class="hljs-string">"backslashreplace"</span>))
+</div></div></code></pre><p><a id="skipping-tests" target="_blank" rel="noopener"></a></p><h1 id="Skipping-Tests"><a class="anchor hidden-xs" href="#Skipping-Tests" title="Skipping-Tests"><i class="fa fa-link"></i></a>Skipping Tests</h1><ul>
+<li>Tests can be skipped for any reason using the <code>@pytest.mark.skipif</code> marker</li>
+<li>Platform-specific test exclusion can be facilitated by using the <code>@pytest.mark.skipif</code> marker and the <code>platform_matches</code> helper function, which performs regex matching against the platform.</li>
+</ul><h2 id="Example2"><a class="anchor hidden-xs" href="#Example2" title="Example2"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span></div><div class="code"><span class="hljs-meta">@pytest.mark.skipif(</span>
+    platform_matches([<span class="hljs-string">"i686"</span>, <span class="hljs-string">"asan"</span>, <span class="hljs-string">"lsan"</span>]),
+    reason=<span class="hljs-string">"Unsupported platform"</span>,
+)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestSkipPlatforms</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    ...
+
+</div></div></code></pre><p><a id="reporting" target="_blank" rel="noopener"></a></p><h1 id="Reporting"><a class="anchor hidden-xs" href="#Reporting" title="Reporting"><i class="fa fa-link"></i></a>Reporting</h1><ul>
+<li>The <code>gaudi_pytest_plugin</code> plugin integrates Pytest with CTest by reporting results using <code>DartMeasurement</code> XML tags.</li>
+<li>Test configuration details are recorded using a dedicated test method, <code>testFixtureSetup</code>, it records the following:
+<ul>
+<li>The start and end time of the execution</li>
+<li>The command that was ran (expanded with the full paths).</li>
+<li>The runtime environment</li>
+<li>The directory in which the test ran</li>
+<li>The reference file if any</li>
+<li>The expected timeout and returncode if any</li>
+<li>The options if any</li>
+<li>The application’s output (stdout, stderr, returncode, timeout, stacktrace)</li>
+</ul>
+</li>
+<li>Other properties that are always recorded:
+<ul>
+<li>Test validation times are automatically captured using the <code>capture_validation_time</code> fixture.</li>
+<li>Test source code is automatically captured using the <code>capture_test_source</code> fixture.</li>
+<li>The <code>capture_class_docstring</code> fixture captures and records the docstring of a test class if it exists.</li>
+</ul>
+</li>
+<li>Tests can report additional information through the <code>record_property</code> fixture</li>
+<li>The properties are prefixed with the test name and class name in the output tag to differentiate properties across tests: <code>className.testName.propertyName</code></li>
+</ul><h2 id="Example3"><a class="anchor hidden-xs" href="#Example3" title="Example3"><i class="fa fa-link"></i></a>Example</h2><pre><code class="python hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestReport</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">'Gaudi.exe'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
+    
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_reporting</span><span class="hljs-params">(self, record_property)</span>:</span>
+        record_property(<span class="hljs-string">"key"</span>, <span class="hljs-string">"value"</span>)
+</code></pre><p><a id="structured-reference-files" target="_blank" rel="noopener"></a></p><h1 id="Structured-Reference-Files"><a class="anchor hidden-xs" href="#Structured-Reference-Files" title="Structured-Reference-Files"><i class="fa fa-link"></i></a>Structured Reference Files</h1><h2 id="Structure"><a class="anchor hidden-xs" href="#Structure" title="Structure"><i class="fa fa-link"></i></a>Structure</h2><p>A YAML structured reference file is required by <code>GaudiExeTest</code>. It typically contains sections for different output streams. Each section defines the expected content for that specific output.<br>
+The sections for which there are currently default validation tests are:</p><ul>
+<li><code>stdout</code></li>
+<li><code>stderr</code></li>
+<li><code>histos</code></li>
+<li><code>ttrees</code></li>
+</ul><h2 id="Example4"><a class="anchor hidden-xs" href="#Example4" title="Example4"><i class="fa fa-link"></i></a>Example</h2><pre><code class="yaml hljs"><span class="hljs-attr">stdout:</span> <span class="hljs-string">|
+    ApplicationMgr   	INFO Application Manager Configured successfully
+    StatusCodeSvc    	INFO initialize
+    ...
+
+</span><span class="hljs-attr">stderr:</span> <span class="hljs-string">|
+    Starting tracking the heap
+    Dumping heap profile to HelloWorld-Initialize.0001.heap (HelloWorld-Initialize)
+
+</span><span class="hljs-attr">histos:</span> <span class="hljs-string">{}</span>
+	
+<span class="hljs-attr">ttrees:</span>
+ <span class="hljs-string">'100'</span><span class="hljs-string">:</span>
+<span class="hljs-attr">   Name:</span> <span class="hljs-string">'100'</span>
+<span class="hljs-attr">   Title:</span> <span class="hljs-string">Hello</span> <span class="hljs-string">World</span>
+<span class="hljs-attr">   Entries:</span> <span class="hljs-number">1000</span>
+</code></pre><p><a id="transition-from-qmtest-to-pytest" target="_blank" rel="noopener"></a></p><h1 id="Transition-from-QMTest-to-Pytest"><a class="anchor hidden-xs" href="#Transition-from-QMTest-to-Pytest" title="Transition-from-QMTest-to-Pytest"><i class="fa fa-link"></i></a>Transition from QMTest to Pytest</h1><p><a id="automated-transition-scripts" target="_blank" rel="noopener"></a></p><h2 id="Automated-Transition-Scripts"><a class="anchor hidden-xs" href="#Automated-Transition-Scripts" title="Automated-Transition-Scripts"><i class="fa fa-link"></i></a>Automated Transition Scripts</h2><p>To facilitate the transition from QMTest to Pytest, we have 2 scripts that automate part of this process.</p><p><a id="reftoyaml_converterpy" target="_blank" rel="noopener"></a></p><h3 id="utilsref_to_yaml_converterpy"><a class="anchor hidden-xs" href="#utilsref_to_yaml_converterpy" title="utilsref_to_yaml_converterpy"><i class="fa fa-link"></i></a><code>utils/ref_to_yaml_converter.py</code></h3><p>The <code>ref_to_yaml_converter.py</code> script automates the conversion of .ref reference files into YAML format by reading the content of the .ref files and restructures them accordingly.</p><h4 id="Description"><a class="anchor hidden-xs" href="#Description" title="Description"><i class="fa fa-link"></i></a>Description:</h4><ul>
+<li><strong>Input</strong>: .ref files containing expected test outputs, such as stdout, stderr, histograms, and TTree summaries.</li>
+<li><strong>Output</strong>: YAML files structured for use in Pytest that contain the same information but in a format compatible with the GuadiExeTest validation process.</li>
+</ul><h4 id="Limits0"><a class="anchor hidden-xs" href="#Limits0" title="Limits0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Limits</span>:</h4><p>If your tets has a custom validator, the script will create the test class’s skeleton and add a test that <mark><strong>fails</strong></mark>. You will have to manually adapt it.</p><h4 id="Usage0"><a class="anchor hidden-xs" href="#Usage0" title="Usage0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py &lt;file_or_directory&gt;
+</code></pre><ul>
+<li>If a single <strong>file</strong> is provided, it will convert that file.</li>
+<li>If a <strong>directory</strong> is provided, the script will process all .ref files within that directory.</li>
+<li>The output files are stored in the <strong>same directory</strong> as the input files.</li>
+</ul><h4 id="Example0"><a class="anchor hidden-xs" href="#Example0" title="Example0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py ../GaudiTestSuite/tests/qmtest/refs
+</code></pre><p><a id="qmt_to_pytest_converterpy" target="_blank" rel="noopener"></a></p><h3 id="utilsqmt_to_pytest_converterpy"><a class="anchor hidden-xs" href="#utilsqmt_to_pytest_converterpy" title="utilsqmt_to_pytest_converterpy"><i class="fa fa-link"></i></a><code>utils/qmt_to_pytest_converter.py</code></h3><p>The <code>qmt_to_pytest_converter.py</code> script facilitates the conversion of QMTest test files (.qmt) into Pytest-compatible Python test scripts. It parses the .qmt files and generates equivalent Pytest test classes with the corresponding attributes.</p><h4 id="Description1"><a class="anchor hidden-xs" href="#Description1" title="Description1"><i class="fa fa-link"></i></a>Description:</h4><ul>
+<li><strong>Input</strong>: .qmt files that define QMTest tests.</li>
+<li><strong>Output</strong>: Pytest test files compatible with Pytest inheriting from GaudiExeTest.</li>
+</ul><h4 id="Usage0"><a class="anchor hidden-xs" href="#Usage0" title="Usage0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py &lt;file.qmt&gt;
+</code></pre><h4 id="Example"><a class="anchor hidden-xs" href="#Example" title="Example"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py ./tests/gauditestsuite.qms/test_example.qmt
+</code></pre><ul>
+<li><strong>Input</strong>:</li>
+</ul><details>
+<summary>🔍 cpuprofiler.qmt</summary>
+<pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+<span class="hljs-comment">&lt;!--
+    (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
+
+    This software is distributed under the terms of the Apache version 2 licence,
+    copied verbatim in the file "LICENSE".
+
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">extension</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"GaudiTest.GaudiExeTest"</span> <span class="hljs-attr">kind</span>=<span class="hljs-string">"test"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"program"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>gaudirun.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"args"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>--preload=libprofiler.so<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>-v<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"options"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>
+from Gaudi.Configuration import *
+from Configurables import GaudiTestSuiteCommonConf, HelloWorld
+from Configurables import Google__CPUProfiler as GoogleAuditor
+
+GaudiTestSuiteCommonConf()
+AuditorSvc().Auditors.append(GoogleAuditor(OutputLevel=INFO))
+ApplicationMgr(EvtMax=10,
+               EvtSel="NONE",
+               TopAlg=[HelloWorld()],
+               AuditAlgorithms=True)
+
+<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/google_auditors/cpu_profiler.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"error_reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/google_auditors/cpu_profiler_err.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"use_temp_dir"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">enumeral</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">enumeral</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"unsupported_platforms"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>i686<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>asan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>lsan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>ubsan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>tsan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"validator"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>
+# hide a difference between JobOptionsSvc and Configurables
+preprocessor = normalizeTestSuite + \
+    RegexpReplacer(r"PROFILE: interrupts/evictions/bytes = \d+/\d+/\d+",
+                    "PROFILE: interrupts/evictions/bytes = X/Y/Z")
+validateWithReference(preproc = preprocessor)
+<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"environment"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>GAUDIAPPNAME=<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>GAUDIAPPVERSION=<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
+</code></pre>
+</details><ul>
+<li><strong>Output</strong>:</li>
+</ul><details>
+<summary>🔍 test_cpuprofiler.py</summary>
+<pre><code class="python hljs"><span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-comment"># (c) Copyright 2023 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># This software is distributed under the terms of the Apache version 2 licence,     #</span>
+<span class="hljs-comment"># copied verbatim in the file "LICENSE".                                            #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># In applying this licence, CERN does not waive the privileges and immunities       #</span>
+<span class="hljs-comment"># granted to it by virtue of its status as an Intergovernmental Organization        #</span>
+<span class="hljs-comment"># or submit itself to any jurisdiction.                                             #</span>
+<span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-keyword">import</span> pytest
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest, platform_matches
+
+
+<span class="hljs-meta">@pytest.mark.skipif(</span>
+    platform_matches([<span class="hljs-string">"i686"</span>, <span class="hljs-string">"asan"</span>, <span class="hljs-string">"lsan"</span>, <span class="hljs-string">"ubsan"</span>, <span class="hljs-string">"tsan"</span>]),
+    reason=<span class="hljs-string">"Unsupported platform"</span>,
+)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCpuprofiler</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"--preload=libprofiler.so"</span>, <span class="hljs-string">"-v"</span>]
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">options</span><span class="hljs-params">()</span>:</span>
+        <span class="hljs-comment"># Options of the test job</span>
+        <span class="hljs-keyword">from</span> Configurables <span class="hljs-keyword">import</span> GaudiTestSuiteCommonConf, HelloWorld
+        <span class="hljs-keyword">from</span> Configurables <span class="hljs-keyword">import</span> Google__CPUProfiler <span class="hljs-keyword">as</span> GoogleAuditor
+
+        <span class="hljs-keyword">from</span> Gaudi.Configuration <span class="hljs-keyword">import</span> (
+            INFO,
+            ApplicationMgr,
+            AuditorSvc,
+        )
+
+        GaudiTestSuiteCommonConf()
+        AuditorSvc().Auditors.append(GoogleAuditor(OutputLevel=INFO))
+        ApplicationMgr(
+            EvtMax=<span class="hljs-number">10</span>, EvtSel=<span class="hljs-string">"NONE"</span>, TopAlg=[HelloWorld()], AuditAlgorithms=<span class="hljs-literal">True</span>
+        )
+
+    reference = <span class="hljs-string">"../refs/google_auditors/cpu_profiler.yaml"</span>
+    environment = [<span class="hljs-string">"GAUDIAPPNAME="</span>, <span class="hljs-string">"GAUDIAPPVERSION="</span>]
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_stdout</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">assert</span> (
+            <span class="hljs-literal">False</span>
+        ), <span class="hljs-string">"This test requires manual implementation, check the 'validator' tag"</span>
+
+        <span class="hljs-comment"># hide a difference between JobOptionsSvc and Configurables</span>
+        preprocessor = normalizeTestSuite + RegexpReplacer(
+            <span class="hljs-string">r"PROFILE: interrupts/evictions/bytes = \d+/\d+/\d+"</span>,
+            <span class="hljs-string">"PROFILE: interrupts/evictions/bytes = X/Y/Z"</span>,
+        )
+        validateWithReference(preproc=preprocessor)
+</code></pre>
+</details><p><a id="some-examples" target="_blank" rel="noopener"></a></p><h1 id="Some-Examples"><a class="anchor hidden-xs" href="#Some-Examples" title="Some-Examples"><i class="fa fa-link"></i></a>Some Examples</h1><p><a id="algsequencer" target="_blank" rel="noopener"></a></p><h2 id="🔍-algsequencer"><a class="anchor hidden-xs" href="#🔍-algsequencer" title="🔍-algsequencer"><i class="fa fa-link"></i></a>🔍 algsequencer</h2><h3 id="algsequencerqmt"><a class="anchor hidden-xs" href="#algsequencerqmt" title="algsequencerqmt"><i class="fa fa-link"></i></a>algsequencer.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+<span class="hljs-comment">&lt;!--
+    (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
+
+    This software is distributed under the terms of the Apache version 2 licence,
+    copied verbatim in the file "LICENSE".
+
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">extension</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"GaudiTest.GaudiExeTest"</span> <span class="hljs-attr">kind</span>=<span class="hljs-string">"test"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"args"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>options/AlgSequencer.opts<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"use_temp_dir"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">enumeral</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">enumeral</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/AlgSequencer.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
+
+</code></pre><h3 id="algsequencerpy"><a class="anchor hidden-xs" href="#algsequencerpy" title="algsequencerpy"><i class="fa fa-link"></i></a><a href="http://algsequencer.py" target="_blank" rel="noopener">algsequencer.py</a></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span>
+<span data-linenumber="10"></span>
+<span data-linenumber="11"></span>
+<span data-linenumber="12"></span>
+<span data-linenumber="13"></span>
+<span data-linenumber="14"></span>
+<span data-linenumber="15"></span>
+<span data-linenumber="16"></span></div><div class="code"><span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-comment"># (c) Copyright 2024 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># This software is distributed under the terms of the Apache version 2 licence,     #</span>
+<span class="hljs-comment"># copied verbatim in the file "LICENSE".                                            #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># In applying this licence, CERN does not waive the privileges and immunities       #</span>
+<span class="hljs-comment"># granted to it by virtue of its status as an Intergovernmental Organization        #</span>
+<span class="hljs-comment"># or submit itself to any jurisdiction.                                             #</span>
+<span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestAlgSequencer</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"../../../options/ControlFlow/AlgSequencer.py"</span>]
+    reference = <span class="hljs-string">"../refs/ControlFlow/AlgSequencer.yaml"</span>
+</div></div></code></pre><p><a id="slimeventloop-scheduled-stop" target="_blank" rel="noopener"></a></p><h2 id="🔍-slimeventloop_scheduled_stop0"><a class="anchor hidden-xs" href="#🔍-slimeventloop_scheduled_stop0" title="🔍-slimeventloop_scheduled_stop0"><i class="fa fa-link"></i></a>🔍 slimeventloop_scheduled_stop</h2><h3 id="slimeventloop_scheduled_stopqmt0"><a class="anchor hidden-xs" href="#slimeventloop_scheduled_stopqmt0" title="slimeventloop_scheduled_stopqmt0"><i class="fa fa-link"></i></a>slimeventloop_scheduled_stop.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+<span class="hljs-comment">&lt;!--
+    (c) Copyright 1998-2024 CERN for the benefit of the LHCb and ATLAS collaborations
+
+    This software is distributed under the terms of the Apache version 2 licence,
+    copied verbatim in the file "LICENSE".
+
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">extension</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"GaudiTest.GaudiExeTest"</span> <span class="hljs-attr">kind</span>=<span class="hljs-string">"test"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"program"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>gaudirun.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"args"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>../../options/SlimEventLoopScheduledStop.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"timeout"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">integer</span>&gt;</span>120<span class="hljs-tag">&lt;/<span class="hljs-name">integer</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"use_temp_dir"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">enumeral</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">enumeral</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"exit_code"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">integer</span>&gt;</span>4<span class="hljs-tag">&lt;/<span class="hljs-name">integer</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/SlimEventLoopScheduledStop.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
+</code></pre><h3 id="slimeventloop_scheduled_stoppy"><a class="anchor hidden-xs" href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stoppy"><i class="fa fa-link"></i></a>slimeventloop_scheduled_stop.py</h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span>
+<span data-linenumber="10"></span>
+<span data-linenumber="11"></span>
+<span data-linenumber="12"></span>
+<span data-linenumber="13"></span>
+<span data-linenumber="14"></span>
+<span data-linenumber="15"></span>
+<span data-linenumber="16"></span>
+<span data-linenumber="17"></span>
+<span data-linenumber="18"></span></div><div class="code"><span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-comment"># (c) Copyright 2024 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># This software is distributed under the terms of the Apache version 2 licence,     #</span>
+<span class="hljs-comment"># copied verbatim in the file "LICENSE".                                            #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># In applying this licence, CERN does not waive the privileges and immunities       #</span>
+<span class="hljs-comment"># granted to it by virtue of its status as an Intergovernmental Organization        #</span>
+<span class="hljs-comment"># or submit itself to any jurisdiction.                                             #</span>
+<span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestSlimEventLoopScheduledStop</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"../../../options/SlimEventLoopScheduledStop.py"</span>]
+    reference = <span class="hljs-string">"../refs/SlimEventLoopScheduledStop.yaml"</span>
+    timeout = <span class="hljs-number">120</span>
+    returncode = <span class="hljs-number">4</span>
+</div></div></code></pre><p><a id="superalg-dynamic-graph" target="_blank" rel="noopener"></a></p><h2 id="🔍-superalg_dynamic_graph"><a class="anchor hidden-xs" href="#🔍-superalg_dynamic_graph" title="🔍-superalg_dynamic_graph"><i class="fa fa-link"></i></a>🔍 superalg_dynamic_graph</h2><h3 id="superalg_dynamic_graphqmt0"><a class="anchor hidden-xs" href="#superalg_dynamic_graphqmt0" title="superalg_dynamic_graphqmt0"><i class="fa fa-link"></i></a>superalg_dynamic_graph.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+<span class="hljs-comment">&lt;!--
+    (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
+
+    This software is distributed under the terms of the Apache version 2 licence,
+    copied verbatim in the file "LICENSE".
+
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">extension</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"GaudiTest.GaudiExeTest"</span> <span class="hljs-attr">kind</span>=<span class="hljs-string">"test"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"program"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>gaudirun.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"args"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>../../options/ControlFlow/SuperAlgDynamicGraph.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"use_temp_dir"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">enumeral</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">enumeral</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/ControlFlow/SuperAlgDynamicGraph.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"validator"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>
+import os
+import sys
+sys.path.append(os.path.join(os.environ.get("ENV_PROJECT_SOURCE_DIR"), "GaudiTestSuite", "tests", "qmtest"))
+sys.path.append(os.path.join(os.environ.get("ENV_PROJECT_SOURCE_DIR"), "Gaudi", "GaudiTestSuite", "tests", "qmtest"))
+
+from ControlFlowTestValidator import preprocessor
+validateWithReference(preproc = preprocessor)
+  <span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
+</code></pre><h3 id="superalg_dynamic_graphpy"><a class="anchor hidden-xs" href="#superalg_dynamic_graphpy" title="superalg_dynamic_graphpy"><i class="fa fa-link"></i></a>superalg_dynamic_graph.py</h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span>
+<span data-linenumber="10"></span>
+<span data-linenumber="11"></span>
+<span data-linenumber="12"></span>
+<span data-linenumber="13"></span>
+<span data-linenumber="14"></span>
+<span data-linenumber="15"></span>
+<span data-linenumber="16"></span>
+<span data-linenumber="17"></span>
+<span data-linenumber="18"></span></div><div class="code"><span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-comment"># (c) Copyright 2024 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># This software is distributed under the terms of the Apache version 2 licence,     #</span>
+<span class="hljs-comment"># copied verbatim in the file "LICENSE".                                            #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># In applying this licence, CERN does not waive the privileges and immunities       #</span>
+<span class="hljs-comment"># granted to it by virtue of its status as an Intergovernmental Organization        #</span>
+<span class="hljs-comment"># or submit itself to any jurisdiction.                                             #</span>
+<span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-keyword">from</span> ControlFlowTestValidator <span class="hljs-keyword">import</span> preprocessor
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestSuperAlgDynamicGraph</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"../../..//options/ControlFlow/SuperAlgDynamicGraph.py"</span>]
+    reference = <span class="hljs-string">"../refs/ControlFlow/SuperAlgDynamicGraph.yaml"</span>
+    preprocessor = preprocessor
+</div></div></code></pre><p><a id="toolhandles" target="_blank" rel="noopener"></a></p><h2 id="🔍-toolhandles0"><a class="anchor hidden-xs" href="#🔍-toolhandles0" title="🔍-toolhandles0"><i class="fa fa-link"></i></a>🔍 toolhandles</h2><h3 id="toolhandlesqmt0"><a class="anchor hidden-xs" href="#toolhandlesqmt0" title="toolhandlesqmt0"><i class="fa fa-link"></i></a>toolhandles.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+<span class="hljs-comment">&lt;!--
+    (c) Copyright 1998-2024 CERN for the benefit of the LHCb and ATLAS collaborations
+
+    This software is distributed under the terms of the Apache version 2 licence,
+    copied verbatim in the file "LICENSE".
+
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">extension</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"GaudiTest.GaudiExeTest"</span> <span class="hljs-attr">kind</span>=<span class="hljs-string">"test"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"program"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>gaudirun.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"args"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>../../options/ToolHandles.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/ToolHandles.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"exit_code"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">integer</span>&gt;</span>0<span class="hljs-tag">&lt;/<span class="hljs-name">integer</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"validator"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>
+# ignore order of lines printed during execution
+preprocessor = normalizeTestSuite + SortGroupOfLines(r"^THData.*INFO executing")
+validateWithReference(preproc = preprocessor)
+<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
+</code></pre><h3 id="toolhandlespy"><a class="anchor hidden-xs" href="#toolhandlespy" title="toolhandlespy"><i class="fa fa-link"></i></a><a href="http://toolhandles.py" target="_blank" rel="noopener">toolhandles.py</a></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span>
+<span data-linenumber="10"></span>
+<span data-linenumber="11"></span>
+<span data-linenumber="12"></span>
+<span data-linenumber="13"></span>
+<span data-linenumber="14"></span>
+<span data-linenumber="15"></span>
+<span data-linenumber="16"></span>
+<span data-linenumber="17"></span>
+<span data-linenumber="18"></span>
+<span data-linenumber="19"></span>
+<span data-linenumber="20"></span></div><div class="code"><span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-comment"># (c) Copyright 2024 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># This software is distributed under the terms of the Apache version 2 licence,     #</span>
+<span class="hljs-comment"># copied verbatim in the file "LICENSE".                                            #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># In applying this licence, CERN does not waive the privileges and immunities       #</span>
+<span class="hljs-comment"># granted to it by virtue of its status as an Intergovernmental Organization        #</span>
+<span class="hljs-comment"># or submit itself to any jurisdiction.                                             #</span>
+<span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+<span class="hljs-keyword">from</span> GaudiTesting.preprocessors <span class="hljs-keyword">import</span> SortGroupOfLines, normalizeTestSuite
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestToolHandles</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"../../../options/ToolHandles.py"</span>]
+    reference = <span class="hljs-string">"../refs/ToolHandles.yaml"</span>
+    preprocessor = preprocessor = normalizeTestSuite + SortGroupOfLines(
+        <span class="hljs-string">r"^THData.*INFO executing"</span>
+    )
+</div></div></code></pre><p><a id="custom-factory" target="_blank" rel="noopener"></a></p><h2 id="🔍-custom_factory"><a class="anchor hidden-xs" href="#🔍-custom_factory" title="🔍-custom_factory"><i class="fa fa-link"></i></a>🔍 custom_factory</h2><h3 id="custom_factoryqmt"><a class="anchor hidden-xs" href="#custom_factoryqmt" title="custom_factoryqmt"><i class="fa fa-link"></i></a>custom_factory.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+<span class="hljs-comment">&lt;!--
+    (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
+
+    This software is distributed under the terms of the Apache version 2 licence,
+    copied verbatim in the file "LICENSE".
+
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">extension</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"GaudiTest.GaudiExeTest"</span> <span class="hljs-attr">kind</span>=<span class="hljs-string">"test"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"program"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>gaudirun.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"options"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>
+from Gaudi.Configuration import *
+
+ApplicationMgr(TopAlg = [ "PluginServiceTest::CustomFactoryAlgorithm/CFA" ],
+               EvtSel = "NONE",
+               EvtMax = 1)
+  <span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"validator"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>
+for expected in ["created CustomFactoryAlgorithm at", "CFA                  INFO running"]:
+    if not expected in stdout:
+        causes.append("missing signature")
+        result["GaudiTest.expected_line"] = result.Quote(expected)
+<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"use_temp_dir"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">enumeral</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">enumeral</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
+</code></pre><h3 id="custom_factorypy"><a class="anchor hidden-xs" href="#custom_factorypy" title="custom_factorypy"><i class="fa fa-link"></i></a>custom_factory.py</h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span>
+<span data-linenumber="10"></span>
+<span data-linenumber="11"></span>
+<span data-linenumber="12"></span>
+<span data-linenumber="13"></span>
+<span data-linenumber="14"></span>
+<span data-linenumber="15"></span>
+<span data-linenumber="16"></span>
+<span data-linenumber="17"></span>
+<span data-linenumber="18"></span>
+<span data-linenumber="19"></span>
+<span data-linenumber="20"></span>
+<span data-linenumber="21"></span>
+<span data-linenumber="22"></span>
+<span data-linenumber="23"></span>
+<span data-linenumber="24"></span>
+<span data-linenumber="25"></span>
+<span data-linenumber="26"></span>
+<span data-linenumber="27"></span>
+<span data-linenumber="28"></span>
+<span data-linenumber="29"></span>
+<span data-linenumber="30"></span>
+<span data-linenumber="31"></span>
+<span data-linenumber="32"></span>
+<span data-linenumber="33"></span>
+<span data-linenumber="34"></span></div><div class="code"><span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-comment"># (c) Copyright 2024 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># This software is distributed under the terms of the Apache version 2 licence,     #</span>
+<span class="hljs-comment"># copied verbatim in the file "LICENSE".                                            #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># In applying this licence, CERN does not waive the privileges and immunities       #</span>
+<span class="hljs-comment"># granted to it by virtue of its status as an Intergovernmental Organization        #</span>
+<span class="hljs-comment"># or submit itself to any jurisdiction.                                             #</span>
+<span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-keyword">import</span> pytest
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCustomFactory</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">"gaudirun.py"</span>]
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">options</span><span class="hljs-params">()</span>:</span>
+        <span class="hljs-keyword">from</span> Gaudi.Configuration <span class="hljs-keyword">import</span> ApplicationMgr
+
+        ApplicationMgr(
+            TopAlg=[<span class="hljs-string">"PluginServiceTest::CustomFactoryAlgorithm/CFA"</span>],
+            EvtSel=<span class="hljs-string">"NONE"</span>,
+            EvtMax=<span class="hljs-number">1</span>,
+        )
+
+    expected = [
+        <span class="hljs-string">b"created CustomFactoryAlgorithm at"</span>,
+        <span class="hljs-string">b"CFA                  INFO running"</span>,
+    ]
+
+<span class="hljs-meta">    @pytest.mark.parametrize("line", expected)</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_check_line</span><span class="hljs-params">(self, line, stdout)</span>:</span>
+        <span class="hljs-keyword">assert</span> line <span class="hljs-keyword">in</span> stdout
+</div></div></code></pre><p><a id="heapprofiler" target="_blank" rel="noopener"></a></p><h2 id="🔍-heapprofiler"><a class="anchor hidden-xs" href="#🔍-heapprofiler" title="🔍-heapprofiler"><i class="fa fa-link"></i></a>🔍 heapprofiler</h2><h3 id="heapprofilerqmt0"><a class="anchor hidden-xs" href="#heapprofilerqmt0" title="heapprofilerqmt0"><i class="fa fa-link"></i></a>heapprofiler.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+<span class="hljs-comment">&lt;!--
+    (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
+
+    This software is distributed under the terms of the Apache version 2 licence,
+    copied verbatim in the file "LICENSE".
+
+    In applying this licence, CERN does not waive the privileges and immunities
+    granted to it by virtue of its status as an Intergovernmental Organization
+    or submit itself to any jurisdiction.
+--&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">extension</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"GaudiTest.GaudiExeTest"</span> <span class="hljs-attr">kind</span>=<span class="hljs-string">"test"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"program"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>gaudirun.py<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"args"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>-T<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>-v<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"options"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>
+# Options of the test job
+from Gaudi.Configuration import *
+from Configurables import GaudiTestSuiteCommonConf, HelloWorld
+from Configurables import Google__HeapProfiler as GoogleAuditor
+
+GaudiTestSuiteCommonConf()
+AuditorSvc().Auditors.append(GoogleAuditor(OutputLevel=INFO))
+ApplicationMgr(EvtMax=10,
+               EvtSel="NONE",
+               TopAlg=[HelloWorld()],
+               AuditAlgorithms=True)
+
+<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/google_auditors/heap_profiler.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"error_reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/google_auditors/heap_profiler_err.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"use_temp_dir"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">enumeral</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">enumeral</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"unsupported_platforms"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>i686<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>asan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>lsan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>ubsan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>tsan<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"environment"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">set</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>GAUDIAPPNAME=<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>GAUDIAPPVERSION=<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
+</code></pre><h3 id="heapprofilerpy"><a class="anchor hidden-xs" href="#heapprofilerpy" title="heapprofilerpy"><i class="fa fa-link"></i></a><a href="http://heapprofiler.py" target="_blank" rel="noopener">heapprofiler.py</a></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span>
+<span data-linenumber="10"></span>
+<span data-linenumber="11"></span>
+<span data-linenumber="12"></span>
+<span data-linenumber="13"></span>
+<span data-linenumber="14"></span>
+<span data-linenumber="15"></span>
+<span data-linenumber="16"></span>
+<span data-linenumber="17"></span>
+<span data-linenumber="18"></span>
+<span data-linenumber="19"></span>
+<span data-linenumber="20"></span>
+<span data-linenumber="21"></span>
+<span data-linenumber="22"></span>
+<span data-linenumber="23"></span>
+<span data-linenumber="24"></span>
+<span data-linenumber="25"></span>
+<span data-linenumber="26"></span>
+<span data-linenumber="27"></span>
+<span data-linenumber="28"></span>
+<span data-linenumber="29"></span>
+<span data-linenumber="30"></span>
+<span data-linenumber="31"></span>
+<span data-linenumber="32"></span>
+<span data-linenumber="33"></span>
+<span data-linenumber="34"></span>
+<span data-linenumber="35"></span>
+<span data-linenumber="36"></span></div><div class="code"><span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-comment"># (c) Copyright 2024 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># This software is distributed under the terms of the Apache version 2 licence,     #</span>
+<span class="hljs-comment"># copied verbatim in the file "LICENSE".                                            #</span>
+<span class="hljs-comment">#                                                                                   #</span>
+<span class="hljs-comment"># In applying this licence, CERN does not waive the privileges and immunities       #</span>
+<span class="hljs-comment"># granted to it by virtue of its status as an Intergovernmental Organization        #</span>
+<span class="hljs-comment"># or submit itself to any jurisdiction.                                             #</span>
+<span class="hljs-comment">#####################################################################################</span>
+<span class="hljs-keyword">import</span> pytest
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest, platform_matches
+
+
+<span class="hljs-meta">@pytest.mark.skipif(</span>
+    platform_matches([<span class="hljs-string">"i686"</span>, <span class="hljs-string">"asan"</span>, <span class="hljs-string">"lsan"</span>, <span class="hljs-string">"ubsan"</span>, <span class="hljs-string">"tsan"</span>]),
+    reason=<span class="hljs-string">"Unsupported platform"</span>,
+)
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestHeapProfiler</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"-T"</span>, <span class="hljs-string">"-v"</span>]
+    reference = <span class="hljs-string">"../refs/google_auditors/heap_profiler.yaml"</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_env</span><span class="hljs-params">(self, env)</span>:</span>
+        self.unset_vars(env, [<span class="hljs-string">"GAUDIAPPNAME"</span>, <span class="hljs-string">"GAUDIAPPVERSION"</span>])
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">options</span><span class="hljs-params">()</span>:</span>
+        <span class="hljs-keyword">from</span> Configurables <span class="hljs-keyword">import</span> GaudiTestSuiteCommonConf, HelloWorld
+        <span class="hljs-keyword">from</span> Configurables <span class="hljs-keyword">import</span> Google__HeapProfiler <span class="hljs-keyword">as</span> GoogleAuditor
+
+        <span class="hljs-keyword">from</span> Gaudi.Configuration <span class="hljs-keyword">import</span> INFO, ApplicationMgr, AuditorSvc
+
+        GaudiTestSuiteCommonConf()
+        AuditorSvc().Auditors.append(GoogleAuditor(OutputLevel=INFO))
+        ApplicationMgr(
+            EvtMax=<span class="hljs-number">10</span>, EvtSel=<span class="hljs-string">"NONE"</span>, TopAlg=[HelloWorld()], AuditAlgorithms=<span class="hljs-literal">True</span>
+        )
+</div></div></code></pre></div>
+    <div class="ui-toc dropup unselectable hidden-print" style="display:none;">
+        <div class="pull-right dropdown">
+            <a id="tocLabel" class="ui-toc-label btn btn-default" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" title="Table of content">
+                <i class="fa fa-bars"></i>
+            </a>
+            <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel">
+                <div class="toc expand"><ul class="nav">
+<li class=""><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
+<li class=""><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
+<li class=""><a href="#Introduction" title="Introduction">Introduction</a></li>
+<li class=""><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
+<li class=""><a href="#Key-Features" title="Key Features">Key Features</a></li>
+</ul>
+</li>
+<li class=""><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
+<li class=""><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
+<li class=""><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
+<li class=""><a href="#Example0" title="Example:">Example:</a></li>
+</ul>
+</li>
+<li class=""><a href="#Custom-Tests" title="Custom Tests">Custom Tests</a><ul class="nav">
+<li class=""><a href="#Example1" title="Example:">Example:</a></li>
+</ul>
+</li>
+<li class=""><a href="#Skipping-Tests" title="Skipping Tests">Skipping Tests</a><ul class="nav">
+<li><a href="#Example2" title="Example:">Example:</a></li>
+</ul>
+</li>
+<li class=""><a href="#Reporting" title="Reporting">Reporting</a><ul class="nav">
+<li><a href="#Example3" title="Example">Example</a></li>
+</ul>
+</li>
+<li class=""><a href="#Structured-Reference-Files" title="Structured Reference Files">Structured Reference Files</a><ul class="nav">
+<li class=""><a href="#Structure" title="Structure">Structure</a></li>
+<li class=""><a href="#Example4" title="Example">Example</a></li>
+</ul>
+</li>
+<li class=""><a href="#Transition-from-QMTest-to-Pytest" title="Transition from QMTest to Pytest">Transition from QMTest to Pytest</a><ul class="nav">
+<li class=""><a href="#Automated-Transition-Scripts" title="Automated Transition Scripts">Automated Transition Scripts</a><ul class="nav">
+<li class=""><a href="#utilsref_to_yaml_converterpy" title="utils/ref_to_yaml_converter.py">utils/ref_to_yaml_converter.py</a></li>
+<li class=""><a href="#utilsqmt_to_pytest_converterpy" title="utils/qmt_to_pytest_converter.py">utils/qmt_to_pytest_converter.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class=""><a href="#Some-Examples" title="Some Examples">Some Examples</a><ul class="nav">
+<li class=""><a href="#🔍-algsequencer" title="🔍 algsequencer">🔍 algsequencer</a><ul class="nav">
+<li class=""><a href="#algsequencerqmt" title="algsequencer.qmt">algsequencer.qmt</a></li>
+<li class=""><a href="#algsequencerpy" title="algsequencer.py">algsequencer.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-slimeventloop_scheduled_stop0" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
+<li class=""><a href="#slimeventloop_scheduled_stopqmt0" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
+<li class=""><a href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stop.py">slimeventloop_scheduled_stop.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-superalg_dynamic_graph" title="🔍 superalg_dynamic_graph">🔍 superalg_dynamic_graph</a><ul class="nav">
+<li class=""><a href="#superalg_dynamic_graphqmt0" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
+<li class=""><a href="#superalg_dynamic_graphpy" title="superalg_dynamic_graph.py">superalg_dynamic_graph.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-toolhandles0" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
+<li class=""><a href="#toolhandlesqmt0" title="toolhandles.qmt">toolhandles.qmt</a></li>
+<li class=""><a href="#toolhandlespy" title="toolhandles.py">toolhandles.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-custom_factory" title="🔍 custom_factory">🔍 custom_factory</a><ul class="nav">
+<li class=""><a href="#custom_factoryqmt" title="custom_factory.qmt">custom_factory.qmt</a></li>
+<li class=""><a href="#custom_factorypy" title="custom_factory.py">custom_factory.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-heapprofiler" title="🔍 heapprofiler">🔍 heapprofiler</a><ul class="nav">
+<li class=""><a href="#heapprofilerqmt0" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
+<li class=""><a href="#heapprofilerpy" title="heapprofiler.py">heapprofiler.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu" style="">
+    <a class="expand-toggle expand-all" href="#" style="display: none;">Expand all</a>
+    <a class="expand-toggle collapse-all" href="#" style="">Collapse all</a>
+    <a class="back-to-top" href="#">Back to top</a>
+    <a class="go-to-bottom" href="#">Go to bottom</a>
+</div>
+            </ul>
+        </div>
+    </div>
+    <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:17px;display:none;"  >
+        <div class="toc expand"><ul class="nav">
+<li class=""><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
+<li class=""><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
+<li class=""><a href="#Introduction" title="Introduction">Introduction</a></li>
+<li class=""><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
+<li class=""><a href="#Key-Features" title="Key Features">Key Features</a></li>
+</ul>
+</li>
+<li class=""><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
+<li class=""><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
+<li class=""><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
+<li class=""><a href="#Example0" title="Example:">Example:</a></li>
+</ul>
+</li>
+<li class=""><a href="#Custom-Tests" title="Custom Tests">Custom Tests</a><ul class="nav">
+<li class=""><a href="#Example1" title="Example:">Example:</a></li>
+</ul>
+</li>
+<li class=""><a href="#Skipping-Tests" title="Skipping Tests">Skipping Tests</a><ul class="nav">
+<li><a href="#Example2" title="Example:">Example:</a></li>
+</ul>
+</li>
+<li class=""><a href="#Reporting" title="Reporting">Reporting</a><ul class="nav">
+<li><a href="#Example3" title="Example">Example</a></li>
+</ul>
+</li>
+<li class=""><a href="#Structured-Reference-Files" title="Structured Reference Files">Structured Reference Files</a><ul class="nav">
+<li class=""><a href="#Structure" title="Structure">Structure</a></li>
+<li class=""><a href="#Example4" title="Example">Example</a></li>
+</ul>
+</li>
+<li class=""><a href="#Transition-from-QMTest-to-Pytest" title="Transition from QMTest to Pytest">Transition from QMTest to Pytest</a><ul class="nav">
+<li class=""><a href="#Automated-Transition-Scripts" title="Automated Transition Scripts">Automated Transition Scripts</a><ul class="nav">
+<li class=""><a href="#utilsref_to_yaml_converterpy" title="utils/ref_to_yaml_converter.py">utils/ref_to_yaml_converter.py</a></li>
+<li class=""><a href="#utilsqmt_to_pytest_converterpy" title="utils/qmt_to_pytest_converter.py">utils/qmt_to_pytest_converter.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class=""><a href="#Some-Examples" title="Some Examples">Some Examples</a><ul class="nav">
+<li class=""><a href="#🔍-algsequencer" title="🔍 algsequencer">🔍 algsequencer</a><ul class="nav">
+<li class=""><a href="#algsequencerqmt" title="algsequencer.qmt">algsequencer.qmt</a></li>
+<li class=""><a href="#algsequencerpy" title="algsequencer.py">algsequencer.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-slimeventloop_scheduled_stop0" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
+<li class=""><a href="#slimeventloop_scheduled_stopqmt0" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
+<li class=""><a href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stop.py">slimeventloop_scheduled_stop.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-superalg_dynamic_graph" title="🔍 superalg_dynamic_graph">🔍 superalg_dynamic_graph</a><ul class="nav">
+<li class=""><a href="#superalg_dynamic_graphqmt0" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
+<li class=""><a href="#superalg_dynamic_graphpy" title="superalg_dynamic_graph.py">superalg_dynamic_graph.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-toolhandles0" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
+<li class=""><a href="#toolhandlesqmt0" title="toolhandles.qmt">toolhandles.qmt</a></li>
+<li class=""><a href="#toolhandlespy" title="toolhandles.py">toolhandles.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-custom_factory" title="🔍 custom_factory">🔍 custom_factory</a><ul class="nav">
+<li class=""><a href="#custom_factoryqmt" title="custom_factory.qmt">custom_factory.qmt</a></li>
+<li class=""><a href="#custom_factorypy" title="custom_factory.py">custom_factory.py</a></li>
+</ul>
+</li>
+<li class=""><a href="#🔍-heapprofiler" title="🔍 heapprofiler">🔍 heapprofiler</a><ul class="nav">
+<li class=""><a href="#heapprofilerqmt0" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
+<li class=""><a href="#heapprofilerpy" title="heapprofiler.py">heapprofiler.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu" style="">
+    <a class="expand-toggle expand-all" href="#" style="display: none;">Expand all</a>
+    <a class="expand-toggle collapse-all" href="#" style="">Collapse all</a>
+    <a class="back-to-top" href="#">Back to top</a>
+    <a class="go-to-bottom" href="#">Go to bottom</a>
+</div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.0/js/bootstrap.min.js" integrity="sha256-kJrlY+s09+QoWjpkOrXXwhxeaoDz9FW5SaxF8I0DibQ=" crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gist-embed/2.6.0/gist-embed.min.js" integrity="sha256-KyF2D6xPIJUW5sUDSs93vWyZm+1RzIpKCexxElmxl8g=" crossorigin="anonymous" defer></script>
+    <script>
+        var markdown = $(".markdown-body");
+        //smooth all hash trigger scrolling
+        function smoothHashScroll() {
+            var hashElements = $("a[href^='#']").toArray();
+            for (var i = 0; i < hashElements.length; i++) {
+                var element = hashElements[i];
+                var $element = $(element);
+                var hash = element.hash;
+                if (hash) {
+                    $element.on('click', function (e) {
+                        // store hash
+                        var hash = this.hash;
+                        if ($(hash).length <= 0) return;
+                        // prevent default anchor click behavior
+                        e.preventDefault();
+                        // animate
+                        $('body, html').stop(true, true).animate({
+                            scrollTop: $(hash).offset().top
+                        }, 100, "linear", function () {
+                            // when done, add hash to url
+                            // (default click behaviour)
+                            window.location.hash = hash;
+                        });
+                    });
+                }
+            }
+        }
+
+        smoothHashScroll();
+        var toc = $('.ui-toc');
+        var tocAffix = $('.ui-affix-toc');
+        var tocDropdown = $('.ui-toc-dropdown');
+        //toc
+        tocDropdown.click(function (e) {
+            e.stopPropagation();
+        });
+
+        var enoughForAffixToc = true;
+
+        function generateScrollspy() {
+            $(document.body).scrollspy({
+                target: ''
+            });
+            $(document.body).scrollspy('refresh');
+            if (enoughForAffixToc) {
+                toc.hide();
+                tocAffix.show();
+            } else {
+                tocAffix.hide();
+                toc.show();
+            }
+            $(document.body).scroll();
+        }
+
+        function windowResize() {
+            //toc right
+            var paddingRight = parseFloat(markdown.css('padding-right'));
+            var right = ($(window).width() - (markdown.offset().left + markdown.outerWidth() - paddingRight));
+            toc.css('right', right + 'px');
+            //affix toc left
+            var newbool;
+            var rightMargin = (markdown.parent().outerWidth() - markdown.outerWidth()) / 2;
+            //for ipad or wider device
+            if (rightMargin >= 133) {
+                newbool = true;
+                var affixLeftMargin = (tocAffix.outerWidth() - tocAffix.width()) / 2;
+                var left = markdown.offset().left + markdown.outerWidth() - affixLeftMargin;
+                tocAffix.css('left', left + 'px');
+            } else {
+                newbool = false;
+            }
+            if (newbool != enoughForAffixToc) {
+                enoughForAffixToc = newbool;
+                generateScrollspy();
+            }
+        }
+        $(window).resize(function () {
+            windowResize();
+        });
+        $(document).ready(function () {
+            windowResize();
+            generateScrollspy();
+        });
+
+        //remove hash
+        function removeHash() {
+            window.location.hash = '';
+        }
+
+        var backtotop = $('.back-to-top');
+        var gotobottom = $('.go-to-bottom');
+
+        backtotop.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToTop)
+                scrollToTop();
+            removeHash();
+        });
+        gotobottom.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToBottom)
+                scrollToBottom();
+            removeHash();
+        });
+
+        var toggle = $('.expand-toggle');
+        var tocExpand = false;
+
+        checkExpandToggle();
+        toggle.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            tocExpand = !tocExpand;
+            checkExpandToggle();
+        })
+
+        function checkExpandToggle () {
+            var toc = $('.ui-toc-dropdown .toc');
+            var toggle = $('.expand-toggle');
+            if (!tocExpand) {
+                toc.removeClass('expand');
+                toggle.text('Expand all');
+            } else {
+                toc.addClass('expand');
+                toggle.text('Collapse all');
+            }
+        }
+
+        function scrollToTop() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: 0
+            }, 100, "linear");
+        }
+
+        function scrollToBottom() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: $(document.body)[0].scrollHeight
+            }, 100, "linear");
+        }
+    </script>
+</body>
+
+</html>
