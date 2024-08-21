@@ -67,12 +67,13 @@
 </li>
 </ol><p><a id="introduction" target="_blank" rel="noopener"></a></p><h1 id="Introduction"><a class="anchor hidden-xs" href="#Introduction" title="Introduction"><i class="fa fa-link"></i></a>Introduction</h1><blockquote>
 <p>The importance of tests in software development is known to everybody… or it should, so I’ll not talk about it.<br>
-To effectively run tests for a piece of software, it is important to have a testing infrastructure. Such an infrastructure should allow the developer to run the tests and check the results in the simplest possible way (if not by clicking on a button, it should be by executing a simple command). Adding new tests should be easy as well, so the introduction of tests for newly discovered bugs will not require much time, that can be devoted, instead, to fix them.</p>
+To effectively run tests for a piece of software, it is important to have a testing infrastructure. Such an infrastructure should allow the developer to run the tests and check the results in the simplest possible way (if not by clicking on a button, it should be by executing a simple command). Adding new tests should be easy as well, so the introduction of tests for newly discovered bugs will not require much time, that can be devoted, instead, to fix them.<br>
+See: <a href="https://twiki.cern.ch/twiki/bin/view/Gaudi/GaudiTestingInfrastructure" target="_blank" rel="noopener">https://twiki.cern.ch/twiki/bin/view/Gaudi/GaudiTestingInfrastructure</a></p>
 </blockquote><p>So far we have been using QMTest, which was easily extended to cover the special needs of Gaudi. However, with time we realized it had some non-negligible flaws:</p><ul>
 <li>The xml format is too verbose and not human readable.</li>
 <li>We have Python code inside an xml file (for the options and the custom validators).</li>
 <li>We are contrained to putting all the validation logic into one function that tests different parts and reports multiple failures.</li>
-<li>Using results and causes objects to report to <code>ctest</code>.</li>
+<li>Using results and causes objects to report to ctest.</li>
 </ul><p>To address these issues we have now developed a new testing infrastructure based on Pytest, a modern and powerful testing framework that offers more flexibility and simplicity. The new infrastructure offers:</p><ul>
 <li>Simple syntax for cleaner code.</li>
 <li>Multiple small and concise test cases.</li>
@@ -102,21 +103,21 @@ To benefit from its features, you need to write a test class that inherits from 
 <li><code>popenKwargs</code>: Additional subprocess arguments can be specified through popenKwargs. See <a href="https://docs.python.org/3/library/subprocess.html#popen-constructor" target="_blank" rel="noopener">Popen Constructor</a></li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">popenKwargs</span> = {<span class="hljs-string">'key'</span>: value}
 </code></pre><ul>
-<li><code>environment</code>: You can customize the execution environment by setting the environment attribute, which accepts a list of key=value strings. You can use  helper functions for more complex handling (update_env, expand_vars_from, unset_vars).</li>
+<li><code>environment</code>: You can customize the execution environment by setting the environment attribute, which accepts a list of key=value strings. You can use  helper functions for more complex handling (<code>update_env</code>, <code>expand_vars_from</code>, <code>unset_vars</code>).</li>
 </ul><pre><code class="pyth hljs"><span class="hljs-attr">environment</span> = [<span class="hljs-string">'LD_LIBRARY_PATH=/path/to/libs'</span>]
 </code></pre><p>or:</p><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span></div><div class="code"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_env</span><span class="hljs-params">(self, env)</span>:</span>
-        self.unset_vars(env, [<span class="hljs-string">"GAUDIAPPNAME"</span>, <span class="hljs-string">"GAUDIAPPVERSION"</span>])
-        env[<span class="hljs-string">"LD_LIBRARY_PATH"</span>] = self.expand_vars_from( <span class="hljs-string">"$BASE_DIR/lib:$BASE_DIR/plugins:$LD_LIBRARY_PATH"</span>, env)
+    self.unset_vars(env, [<span class="hljs-string">"GAUDIAPPNAME"</span>, <span class="hljs-string">"GAUDIAPPVERSION"</span>])
+    env[<span class="hljs-string">"LD_LIBRARY_PATH"</span>] = self.expand_vars_from( <span class="hljs-string">"$BASE_DIR/lib:$BASE_DIR/plugins:$LD_LIBRARY_PATH"</span>, env)
 </div></div></code></pre><ul>
-<li><code>cwd</code>: You can configure your test to run in a specified directory by setting cwd. By default, a pytest temporary directory is used.</li>
+<li><code>cwd</code>: You can configure your test to run in a specified directory by setting <code>cwd</code>. By default, a pytest temporary directory is used.</li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">cwd</span> = <span class="hljs-string">'/path/to/directory'</span>
 </code></pre><ul>
-<li><code>reference</code>: You can specify the path to a yaml reference file containing reference blocks of stdout, stderr, histograms and ttrees.</li>
+<li><code>reference</code>: You can specify the path to a <mark>yaml</mark> reference file containing reference blocks of stdout, stderr, histograms and ttrees. See: <a href="#structured-reference-files">Structured Reference Files</a></li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">reference</span> = <span class="hljs-string">'test_reference.yaml'</span>
 </code></pre><ul>
-<li><code>timeout</code>: You can specify a timeout in seconds, after which the application will terminate and the tests will report a failure. The default value is 600s.</li>
+<li><code>timeout</code>: You can specify a timeout in seconds, after which the application will terminate and the tests will report a failure. The default value is 600s. See <a href="#output-management-exception-handling">Output Management &amp; Exception Handling</a></li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">timeout</span> = <span class="hljs-number">300</span>
 </code></pre><ul>
 <li><code>returncode</code>: You can specify an expected returncode. The default expected value is 0.</li>
@@ -139,35 +140,51 @@ To benefit from its features, you need to write a test class that inherits from 
 <span data-linenumber="3"></span></div><div class="code">options = <span class="hljs-string">"""
         ApplicationMgr.EvtMax = 1L;
         """</span>
+</div></div></code></pre><p><a id="preprocessor" target="_blank" rel="noopener"></a></p><ul>
+<li><code>preprocessor</code>: Default preprocessing of outputs can be overridden by redefining the preprocessor attribute. See: <a href="#test_stdout"><code>test_stdout</code></a></li>
+</ul><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span></div><div class="code"><span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+<span class="hljs-keyword">from</span> GaudiTesting.preprocessors <span class="hljs-keyword">import</span> normalizeTestSuite, LineSkipper
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestOverridePreprocessor</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    preprocessor = (normalizeTestSuite + LineSkipper(regexps = [<span class="hljs-string">r'INFO png file .* has been created'</span>]))
+    ...
 </div></div></code></pre><p><mark><strong>Note:</strong></mark></p><ul>
-<li>Paths for command arguments and reference files are resolved <strong>relative to the file where the test class is defined</strong>.</li>
-<li>There is no default executable; tests must explicitly specify the executable, such as <a href="http://gaudirun.py" target="_blank" rel="noopener">gaudirun.py</a> or Gaudi.exe.</li>
+<li>Paths for command arguments and reference files are resolved <mark><strong>relative to the file where the test class is defined</strong></mark>.</li>
+<li>There is no default executable; tests must explicitly specify the executable, such as <code>gaudirun.py</code> or <code>Gaudi.exe</code>.</li>
 </ul><p><a id="output-management-exception-handling" target="_blank" rel="noopener"></a></p><h1 id="Output-Management-amp-Exception-Handling"><a class="anchor hidden-xs" href="#Output-Management-amp-Exception-Handling" title="Output-Management-amp-Exception-Handling"><i class="fa fa-link"></i></a>Output Management &amp; Exception Handling</h1><ul>
-<li><strong>Stream Capping</strong>: <code>stdout</code> and <code>stderr</code> are capped at <strong>100MB</strong>.</li>
-<li><strong>Exceptions</strong>: timeouts and exceeded stream size limits are reported through <code>ProcessTimeoutError</code> and <code>ExceededStreamError</code> exceptions.</li>
+<li><strong>Stream Capping</strong>: <code>stdout</code> and <code>stderr</code> are capped at <strong>100MB</strong>. Exceeding this limit results in a <code>ExceededStreamError</code></li>
+<li><strong>Timeouts</strong>: Unless another value is specified, the default value is 600s. Exceeding this limit results in a <code>ProcessTimeoutError</code>.</li>
 <li>If such errors occur, <code>testFixtureSetup</code> will <mark><strong>fail</strong></mark> after reporting all relevant information, including the failure. <mark><strong>All other tests are skipped</strong></mark>.</li>
-</ul><p><a id="standard-tests" target="_blank" rel="noopener"></a></p><h1 id="Standard-Tests"><a class="anchor hidden-xs" href="#Standard-Tests" title="Standard-Tests"><i class="fa fa-link"></i></a>Standard Tests</h1><p>By default, <code>GaudiExeTest</code> will make sure a set of tests will run:</p><ul>
-<li><code>test_stdout</code>: will run only if a reference file is provided. Will preprocess the standard output of the application and compare it to the reference block. Default preprocessing of outputs can be overridden by redefining the preprocessor attribute</li>
-</ul><pre><code class="py hljs">preprocessor = (normalizeTestSuite + LineSkipper(regexps = [<span class="hljs-string">r'INFO png file .* has been created'</span>]))
-</code></pre><ul>
+</ul><p><a id="standard-tests" target="_blank" rel="noopener"></a></p><h1 id="Standard-Tests"><a class="anchor hidden-xs" href="#Standard-Tests" title="Standard-Tests"><i class="fa fa-link"></i></a>Standard Tests</h1><p>By default, <code>GaudiExeTest</code> will make sure a set of tests will run:<br>
+<a id="test_stdout" target="_blank" rel="noopener"></a></p><ul>
+<li><code>test_stdout</code>: will run only if a reference file is provided. Will preprocess the standard output of the application and compare it to the reference block. Default preprocessing of outputs can be overridden by redefining the preprocessor attribute. See <a href="#preprocessor"><code>preprocessor</code></a></li>
 <li><code>test_histos</code>: same.</li>
 <li><code>test_ttrees</code>: same.</li>
 <li><code>tets_stderr</code>: if a reference is procided, validates it, otherwise checks if stderr is empty.</li>
-<li><code>test_returncode</code>: if an expected value is provided, validates it, otherwise checks if the return code is 0 in case.</li>
+<li><code>test_returncode</code>: if an expected value is provided, validates it, otherwise checks if the return code is 0.</li>
 </ul><h2 id="Example0"><a class="anchor hidden-xs" href="#Example0" title="Example0"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
-<span data-linenumber="3"></span></div><div class="code"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestDefaults</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span></div><div class="code"><span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestDefaults</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     command = [<span class="hljs-string">'Gaudi.exe'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
     reference = <span class="hljs-string">'my_reference.yaml'</span>
-</div></div></code></pre><p>Just by writing this, all the default tests will run without any additional configuration.</p><p><a id="custom-tests" target="_blank" rel="noopener"></a></p><h1 id="Custom-Tests"><a class="anchor hidden-xs" href="#Custom-Tests" title="Custom-Tests"><i class="fa fa-link"></i></a>Custom Tests</h1><p>Additional custom tests can be added:</p><ul>
-<li>Some utilities are provided like <code>find_reference_block``````, count_error_lines</code>, and <code>validate_json_with_reference</code>.</li>
+</div></div></code></pre><p>Just by writing this, <mark><strong>all the default tests will run without any additional configuration</strong></mark>.</p><p><a id="custom-tests" target="_blank" rel="noopener"></a></p><h1 id="Custom-Tests"><a class="anchor hidden-xs" href="#Custom-Tests" title="Custom-Tests"><i class="fa fa-link"></i></a>Custom Tests</h1><p>Custom tests can be added:</p><ul>
+<li>Some utilities are provided like <code>find_reference_block</code>, <code>count_error_lines</code>, and <code>validate_json_with_reference</code>.</li>
 <li>Some <strong>fixtures</strong> are provided as well to easily access the application’s output and use it in the tests:
 <ul>
-<li><code>stdout</code>: the application’s standard outpout</li>
-<li><code>stderr</code>: the application’s standard error if any</li>
-<li><code>returncode</code>: the application’s return code</li>
-<li><code>completed_process</code>: the completed process returned by subprocess.popen</li>
-<li><code>cwd</code>: the directory in which the test was executed</li>
+<li><code>stdout</code>: the application’s standard outpout.</li>
+<li><code>stderr</code>: the application’s standard error if any.</li>
+<li><code>returncode</code>: the application’s return code.</li>
+<li><code>completed_process</code>: the completed process returned by <code>subprocess.popen</code>.</li>
+<li><code>cwd</code>: the directory in which the test was executed.</li>
 </ul>
 </li>
 </ul><h2 id="Example1"><a class="anchor hidden-xs" href="#Example1" title="Example1"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
@@ -180,7 +197,11 @@ To benefit from its features, you need to write a test class that inherits from 
 <span data-linenumber="8"></span>
 <span data-linenumber="9"></span>
 <span data-linenumber="10"></span>
-<span data-linenumber="11"></span></div><div class="code"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCustom</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+<span data-linenumber="11"></span>
+<span data-linenumber="12"></span>
+<span data-linenumber="13"></span></div><div class="code"><span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCustom</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     command = [<span class="hljs-string">'gaudirun.py'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
     
     <span class="hljs-comment"># Add extra validation</span>
@@ -188,7 +209,7 @@ To benefit from its features, you need to write a test class that inherits from 
         GaudiExeTest.count_error_lines({}, stdout.decode())
 	
     <span class="hljs-comment"># Override the default test</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_stdout</span><span class="hljs-params">(self, monkeypatch)</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_stdout</span><span class="hljs-params">(self, monkeypatch, stdout)</span>:</span>
         monkeypatch.chdir(self.cwd)
         <span class="hljs-keyword">assert</span> self.preprocessor(open(<span class="hljs-string">"myAppOutput.csv"</span>).read()) == self.preprocessor(stdout.decode(<span class="hljs-string">"utf-8"</span>, errors=<span class="hljs-string">"backslashreplace"</span>))
 </div></div></code></pre><p><a id="skipping-tests" target="_blank" rel="noopener"></a></p><h1 id="Skipping-Tests"><a class="anchor hidden-xs" href="#Skipping-Tests" title="Skipping-Tests"><i class="fa fa-link"></i></a>Skipping Tests</h1><ul>
@@ -200,25 +221,29 @@ To benefit from its features, you need to write a test class that inherits from 
 <span data-linenumber="4"></span>
 <span data-linenumber="5"></span>
 <span data-linenumber="6"></span>
-<span data-linenumber="7"></span></div><div class="code"><span class="hljs-meta">@pytest.mark.skipif(</span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span>
+<span data-linenumber="9"></span></div><div class="code"><span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest, platform_matches
+
+<span class="hljs-meta">@pytest.mark.skipif(</span>
     platform_matches([<span class="hljs-string">"i686"</span>, <span class="hljs-string">"asan"</span>, <span class="hljs-string">"lsan"</span>]),
     reason=<span class="hljs-string">"Unsupported platform"</span>,
 )
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestSkipPlatforms</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     ...
 
-</div></div></code></pre><p><a id="reporting" target="_blank" rel="noopener"></a></p><h1 id="Reporting"><a class="anchor hidden-xs" href="#Reporting" title="Reporting"><i class="fa fa-link"></i></a>Reporting</h1><ul>
+</div></div></code></pre><p><a id="reporting" target="_blank" rel="noopener"></a></p><h1 id="Reporting"><a class="anchor hidden-xs" href="#Reporting" title="Reporting"><i class="fa fa-link"></i></a>Reporting</h1><h2 id="Standard-Test-Properties"><a class="anchor hidden-xs" href="#Standard-Test-Properties" title="Standard-Test-Properties"><i class="fa fa-link"></i></a>Standard Test Properties</h2><ul>
 <li>The <code>gaudi_pytest_plugin</code> plugin integrates Pytest with CTest by reporting results using <code>DartMeasurement</code> XML tags.</li>
 <li>Test configuration details are recorded using a dedicated test method, <code>testFixtureSetup</code>, it records the following:
 <ul>
-<li>The start and end time of the execution</li>
+<li>The start and end time of the execution, and the elapsed time.</li>
 <li>The command that was ran (expanded with the full paths).</li>
-<li>The runtime environment</li>
-<li>The directory in which the test ran</li>
-<li>The reference file if any</li>
-<li>The expected timeout and returncode if any</li>
-<li>The options if any</li>
-<li>The application’s output (stdout, stderr, returncode, timeout, stacktrace)</li>
+<li>The runtime environment.</li>
+<li>The directory in which the test ran.</li>
+<li>The reference file if any.</li>
+<li>The expected timeout and returncode if any.</li>
+<li>The options if any.</li>
+<li>The application’s output (stdout, stderr, returncode, timeout, stacktrace).</li>
 </ul>
 </li>
 <li>Other properties that are always recorded:
@@ -228,7 +253,8 @@ To benefit from its features, you need to write a test class that inherits from 
 <li>The <code>capture_class_docstring</code> fixture captures and records the docstring of a test class if it exists.</li>
 </ul>
 </li>
-<li>Tests can report additional information through the <code>record_property</code> fixture</li>
+</ul><h2 id="Custom-Test-Properties"><a class="anchor hidden-xs" href="#Custom-Test-Properties" title="Custom-Test-Properties"><i class="fa fa-link"></i></a>Custom Test Properties</h2><ul>
+<li>Tests can report additional information through the <code>record_property</code> fixture.</li>
 <li>The properties are prefixed with the test name and class name in the output tag to differentiate properties across tests: <code>className.testName.propertyName</code></li>
 </ul><h2 id="Example3"><a class="anchor hidden-xs" href="#Example3" title="Example3"><i class="fa fa-link"></i></a>Example</h2><pre><code class="python hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestReport</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     command = [<span class="hljs-string">'Gaudi.exe'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
@@ -241,7 +267,7 @@ The sections for which there are currently default validation tests are:</p><ul>
 <li><code>stderr</code></li>
 <li><code>histos</code></li>
 <li><code>ttrees</code></li>
-</ul><h2 id="Example4"><a class="anchor hidden-xs" href="#Example4" title="Example4"><i class="fa fa-link"></i></a>Example</h2><pre><code class="yaml hljs"><span class="hljs-attr">stdout:</span> <span class="hljs-string">|
+</ul><h2 id="Exampleyaml"><a class="anchor hidden-xs" href="#Exampleyaml" title="Exampleyaml"><i class="fa fa-link"></i></a>Example.yaml</h2><pre><code class="yaml hljs"><span class="hljs-attr">stdout:</span> <span class="hljs-string">|
     ApplicationMgr   	INFO Application Manager Configured successfully
     StatusCodeSvc    	INFO initialize
     ...
@@ -257,20 +283,20 @@ The sections for which there are currently default validation tests are:</p><ul>
 <span class="hljs-attr">   Name:</span> <span class="hljs-string">'100'</span>
 <span class="hljs-attr">   Title:</span> <span class="hljs-string">Hello</span> <span class="hljs-string">World</span>
 <span class="hljs-attr">   Entries:</span> <span class="hljs-number">1000</span>
-</code></pre><p><a id="transition-from-qmtest-to-pytest" target="_blank" rel="noopener"></a></p><h1 id="Transition-from-QMTest-to-Pytest"><a class="anchor hidden-xs" href="#Transition-from-QMTest-to-Pytest" title="Transition-from-QMTest-to-Pytest"><i class="fa fa-link"></i></a>Transition from QMTest to Pytest</h1><p><a id="automated-transition-scripts" target="_blank" rel="noopener"></a></p><h2 id="Automated-Transition-Scripts"><a class="anchor hidden-xs" href="#Automated-Transition-Scripts" title="Automated-Transition-Scripts"><i class="fa fa-link"></i></a>Automated Transition Scripts</h2><p>To facilitate the transition from QMTest to Pytest, we have 2 scripts that automate part of this process.</p><p><a id="reftoyaml_converterpy" target="_blank" rel="noopener"></a></p><h3 id="utilsref_to_yaml_converterpy"><a class="anchor hidden-xs" href="#utilsref_to_yaml_converterpy" title="utilsref_to_yaml_converterpy"><i class="fa fa-link"></i></a><code>utils/ref_to_yaml_converter.py</code></h3><p>The <code>ref_to_yaml_converter.py</code> script automates the conversion of .ref reference files into YAML format by reading the content of the .ref files and restructures them accordingly.</p><h4 id="Description"><a class="anchor hidden-xs" href="#Description" title="Description"><i class="fa fa-link"></i></a>Description:</h4><ul>
-<li><strong>Input</strong>: .ref files containing expected test outputs, such as stdout, stderr, histograms, and TTree summaries.</li>
-<li><strong>Output</strong>: YAML files structured for use in Pytest that contain the same information but in a format compatible with the GuadiExeTest validation process.</li>
-</ul><h4 id="Limits0"><a class="anchor hidden-xs" href="#Limits0" title="Limits0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Limits</span>:</h4><p>If your tets has a custom validator, the script will create the test class’s skeleton and add a test that <mark><strong>fails</strong></mark>. You will have to manually adapt it.</p><h4 id="Usage0"><a class="anchor hidden-xs" href="#Usage0" title="Usage0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py &lt;file_or_directory&gt;
+</code></pre><h2 id="From-ref-to-yaml"><a class="anchor hidden-xs" href="#From-ref-to-yaml" title="From-ref-to-yaml"><i class="fa fa-link"></i></a>From .ref to .yaml</h2><p>If you would like to convert your <code>.ref</code> reference file into a structured <code>.yaml</code> file to use it in a test, see: <a href="#reftoyaml_converterpy">utils/ref_to_yaml_converter.py</a>.</p><p><a id="transition-from-qmtest-to-pytest" target="_blank" rel="noopener"></a></p><h1 id="Transition-from-QMTest-to-Pytest"><a class="anchor hidden-xs" href="#Transition-from-QMTest-to-Pytest" title="Transition-from-QMTest-to-Pytest"><i class="fa fa-link"></i></a>Transition from QMTest to Pytest</h1><p><a id="automated-transition-scripts" target="_blank" rel="noopener"></a></p><h2 id="Automated-Transition-Scripts"><a class="anchor hidden-xs" href="#Automated-Transition-Scripts" title="Automated-Transition-Scripts"><i class="fa fa-link"></i></a>Automated Transition Scripts</h2><p>To facilitate the transition from QMTest to Pytest, we have 2 scripts that automate part of this process.</p><p><a id="reftoyaml_converterpy" target="_blank" rel="noopener"></a></p><h3 id="utilsref_to_yaml_converterpy"><a class="anchor hidden-xs" href="#utilsref_to_yaml_converterpy" title="utilsref_to_yaml_converterpy"><i class="fa fa-link"></i></a><code>utils/ref_to_yaml_converter.py</code></h3><p>The <code>ref_to_yaml_converter.py</code> script automates the conversion of .ref reference files into YAML format by reading the content of the .ref files and restructuring them accordingly.</p><h4 id="Description"><a class="anchor hidden-xs" href="#Description" title="Description"><i class="fa fa-link"></i></a>Description:</h4><ul>
+<li><strong>Input</strong>: .ref files containing expected test outputs, such as stdout, stderr, histograms, and ttree summaries.</li>
+<li><strong>Output</strong>: YAML files structured for use in Pytest that contain the same information in a structured format.</li>
+</ul><h4 id="Usage"><a class="anchor hidden-xs" href="#Usage" title="Usage"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py &lt;file_or_directory&gt;
 </code></pre><ul>
 <li>If a single <strong>file</strong> is provided, it will convert that file.</li>
 <li>If a <strong>directory</strong> is provided, the script will process all .ref files within that directory.</li>
 <li>The output files are stored in the <strong>same directory</strong> as the input files.</li>
-</ul><h4 id="Example0"><a class="anchor hidden-xs" href="#Example0" title="Example0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py ../GaudiTestSuite/tests/qmtest/refs
+</ul><h4 id="Example5"><a class="anchor hidden-xs" href="#Example5" title="Example5"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py ../GaudiTestSuite/tests/qmtest/refs
 </code></pre><p><a id="qmt_to_pytest_converterpy" target="_blank" rel="noopener"></a></p><h3 id="utilsqmt_to_pytest_converterpy"><a class="anchor hidden-xs" href="#utilsqmt_to_pytest_converterpy" title="utilsqmt_to_pytest_converterpy"><i class="fa fa-link"></i></a><code>utils/qmt_to_pytest_converter.py</code></h3><p>The <code>qmt_to_pytest_converter.py</code> script facilitates the conversion of QMTest test files (.qmt) into Pytest-compatible Python test scripts. It parses the .qmt files and generates equivalent Pytest test classes with the corresponding attributes.</p><h4 id="Description1"><a class="anchor hidden-xs" href="#Description1" title="Description1"><i class="fa fa-link"></i></a>Description:</h4><ul>
 <li><strong>Input</strong>: .qmt files that define QMTest tests.</li>
-<li><strong>Output</strong>: Pytest test files compatible with Pytest inheriting from GaudiExeTest.</li>
-</ul><h4 id="Usage0"><a class="anchor hidden-xs" href="#Usage0" title="Usage0"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py &lt;file.qmt&gt;
-</code></pre><h4 id="Example"><a class="anchor hidden-xs" href="#Example" title="Example"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py ./tests/gauditestsuite.qms/test_example.qmt
+<li><strong>Output</strong>: Pytest test files inheriting from GaudiExeTest.</li>
+</ul><h4 id="Limits"><a class="anchor hidden-xs" href="#Limits" title="Limits"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Limits</span>:</h4><p>If your test has a custom validator, the script will create the test class’s skeleton and add a test that <mark><strong>fails</strong></mark>. You will have to manually adapt it.</p><h4 id="Usage1"><a class="anchor hidden-xs" href="#Usage1" title="Usage1"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py &lt;file.qmt&gt;
+</code></pre><h4 id="Example6"><a class="anchor hidden-xs" href="#Example6" title="Example6"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py ./tests/gauditestsuite.qms/test_example.qmt
 </code></pre><ul>
 <li><strong>Input</strong>:</li>
 </ul><details>
@@ -385,7 +411,7 @@ validateWithReference(preproc = preprocessor)
         )
         validateWithReference(preproc=preprocessor)
 </code></pre>
-</details><p><a id="some-examples" target="_blank" rel="noopener"></a></p><h1 id="Some-Examples"><a class="anchor hidden-xs" href="#Some-Examples" title="Some-Examples"><i class="fa fa-link"></i></a>Some Examples</h1><p><a id="algsequencer" target="_blank" rel="noopener"></a></p><h2 id="🔍-algsequencer"><a class="anchor hidden-xs" href="#🔍-algsequencer" title="🔍-algsequencer"><i class="fa fa-link"></i></a>🔍 algsequencer</h2><h3 id="algsequencerqmt"><a class="anchor hidden-xs" href="#algsequencerqmt" title="algsequencerqmt"><i class="fa fa-link"></i></a>algsequencer.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+</details><p><a id="some-examples" target="_blank" rel="noopener"></a></p><h1 id="Some-Examples"><a class="anchor hidden-xs" href="#Some-Examples" title="Some-Examples"><i class="fa fa-link"></i></a>Some Examples</h1><p><a id="algsequencer" target="_blank" rel="noopener"></a></p><h2 id="🔍-algsequencer"><a class="anchor hidden-xs" href="#🔍-algsequencer" title="🔍-algsequencer"><i class="fa fa-link"></i></a>🔍 algsequencer</h2><h3 id="algsequencerqmt"><a class="anchor hidden-xs" href="#algsequencerqmt" title="algsequencerqmt"><i class="fa fa-link"></i></a><code>algsequencer.qmt</code></h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
 <span class="hljs-comment">&lt;!--
     (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
 
@@ -402,7 +428,7 @@ validateWithReference(preproc = preprocessor)
 <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/AlgSequencer.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
 
-</code></pre><h3 id="algsequencerpy"><a class="anchor hidden-xs" href="#algsequencerpy" title="algsequencerpy"><i class="fa fa-link"></i></a><a href="http://algsequencer.py" target="_blank" rel="noopener">algsequencer.py</a></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</code></pre><h3 id="algsequencerpy"><a class="anchor hidden-xs" href="#algsequencerpy" title="algsequencerpy"><i class="fa fa-link"></i></a><code>algsequencer.py</code></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
 <span data-linenumber="4"></span>
@@ -433,7 +459,7 @@ validateWithReference(preproc = preprocessor)
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestAlgSequencer</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"../../../options/ControlFlow/AlgSequencer.py"</span>]
     reference = <span class="hljs-string">"../refs/ControlFlow/AlgSequencer.yaml"</span>
-</div></div></code></pre><p><a id="slimeventloop-scheduled-stop" target="_blank" rel="noopener"></a></p><h2 id="🔍-slimeventloop_scheduled_stop0"><a class="anchor hidden-xs" href="#🔍-slimeventloop_scheduled_stop0" title="🔍-slimeventloop_scheduled_stop0"><i class="fa fa-link"></i></a>🔍 slimeventloop_scheduled_stop</h2><h3 id="slimeventloop_scheduled_stopqmt0"><a class="anchor hidden-xs" href="#slimeventloop_scheduled_stopqmt0" title="slimeventloop_scheduled_stopqmt0"><i class="fa fa-link"></i></a>slimeventloop_scheduled_stop.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+</div></div></code></pre><p><a id="slimeventloop-scheduled-stop" target="_blank" rel="noopener"></a></p><h2 id="🔍-slimeventloop_scheduled_stop"><a class="anchor hidden-xs" href="#🔍-slimeventloop_scheduled_stop" title="🔍-slimeventloop_scheduled_stop"><i class="fa fa-link"></i></a>🔍 slimeventloop_scheduled_stop</h2><h3 id="slimeventloop_scheduled_stopqmt"><a class="anchor hidden-xs" href="#slimeventloop_scheduled_stopqmt" title="slimeventloop_scheduled_stopqmt"><i class="fa fa-link"></i></a><code>slimeventloop_scheduled_stop.qmt</code></h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
 <span class="hljs-comment">&lt;!--
     (c) Copyright 1998-2024 CERN for the benefit of the LHCb and ATLAS collaborations
 
@@ -454,7 +480,7 @@ validateWithReference(preproc = preprocessor)
 <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"exit_code"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">integer</span>&gt;</span>4<span class="hljs-tag">&lt;/<span class="hljs-name">integer</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"reference"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>refs/SlimEventLoopScheduledStop.ref<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
-</code></pre><h3 id="slimeventloop_scheduled_stoppy"><a class="anchor hidden-xs" href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stoppy"><i class="fa fa-link"></i></a>slimeventloop_scheduled_stop.py</h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</code></pre><h3 id="slimeventloop_scheduled_stoppy"><a class="anchor hidden-xs" href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stoppy"><i class="fa fa-link"></i></a><code>slimeventloop_scheduled_stop.py</code></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
 <span data-linenumber="4"></span>
@@ -489,7 +515,7 @@ validateWithReference(preproc = preprocessor)
     reference = <span class="hljs-string">"../refs/SlimEventLoopScheduledStop.yaml"</span>
     timeout = <span class="hljs-number">120</span>
     returncode = <span class="hljs-number">4</span>
-</div></div></code></pre><p><a id="superalg-dynamic-graph" target="_blank" rel="noopener"></a></p><h2 id="🔍-superalg_dynamic_graph"><a class="anchor hidden-xs" href="#🔍-superalg_dynamic_graph" title="🔍-superalg_dynamic_graph"><i class="fa fa-link"></i></a>🔍 superalg_dynamic_graph</h2><h3 id="superalg_dynamic_graphqmt0"><a class="anchor hidden-xs" href="#superalg_dynamic_graphqmt0" title="superalg_dynamic_graphqmt0"><i class="fa fa-link"></i></a>superalg_dynamic_graph.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+</div></div></code></pre><p><a id="superalg-dynamic-graph" target="_blank" rel="noopener"></a></p><h2 id="🔍-superalg_dynamic_graph"><a class="anchor hidden-xs" href="#🔍-superalg_dynamic_graph" title="🔍-superalg_dynamic_graph"><i class="fa fa-link"></i></a>🔍 superalg_dynamic_graph</h2><h3 id="superalg_dynamic_graphqmt"><a class="anchor hidden-xs" href="#superalg_dynamic_graphqmt" title="superalg_dynamic_graphqmt"><i class="fa fa-link"></i></a><code>superalg_dynamic_graph.qmt</code></h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
 <span class="hljs-comment">&lt;!--
     (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
 
@@ -515,7 +541,7 @@ from ControlFlowTestValidator import preprocessor
 validateWithReference(preproc = preprocessor)
   <span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
-</code></pre><h3 id="superalg_dynamic_graphpy"><a class="anchor hidden-xs" href="#superalg_dynamic_graphpy" title="superalg_dynamic_graphpy"><i class="fa fa-link"></i></a>superalg_dynamic_graph.py</h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</code></pre><h3 id="superalg_dynamic_graphpy"><a class="anchor hidden-xs" href="#superalg_dynamic_graphpy" title="superalg_dynamic_graphpy"><i class="fa fa-link"></i></a><code>superalg_dynamic_graph.py</code></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
 <span data-linenumber="4"></span>
@@ -550,7 +576,7 @@ validateWithReference(preproc = preprocessor)
     command = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"../../..//options/ControlFlow/SuperAlgDynamicGraph.py"</span>]
     reference = <span class="hljs-string">"../refs/ControlFlow/SuperAlgDynamicGraph.yaml"</span>
     preprocessor = preprocessor
-</div></div></code></pre><p><a id="toolhandles" target="_blank" rel="noopener"></a></p><h2 id="🔍-toolhandles0"><a class="anchor hidden-xs" href="#🔍-toolhandles0" title="🔍-toolhandles0"><i class="fa fa-link"></i></a>🔍 toolhandles</h2><h3 id="toolhandlesqmt0"><a class="anchor hidden-xs" href="#toolhandlesqmt0" title="toolhandlesqmt0"><i class="fa fa-link"></i></a>toolhandles.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+</div></div></code></pre><p><a id="toolhandles" target="_blank" rel="noopener"></a></p><h2 id="🔍-toolhandles"><a class="anchor hidden-xs" href="#🔍-toolhandles" title="🔍-toolhandles"><i class="fa fa-link"></i></a>🔍 toolhandles</h2><h3 id="toolhandlesqmt"><a class="anchor hidden-xs" href="#toolhandlesqmt" title="toolhandlesqmt"><i class="fa fa-link"></i></a><code>toolhandles.qmt</code></h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
 <span class="hljs-comment">&lt;!--
     (c) Copyright 1998-2024 CERN for the benefit of the LHCb and ATLAS collaborations
 
@@ -572,7 +598,7 @@ preprocessor = normalizeTestSuite + SortGroupOfLines(r"^THData.*INFO executing")
 validateWithReference(preproc = preprocessor)
 <span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
-</code></pre><h3 id="toolhandlespy"><a class="anchor hidden-xs" href="#toolhandlespy" title="toolhandlespy"><i class="fa fa-link"></i></a><a href="http://toolhandles.py" target="_blank" rel="noopener">toolhandles.py</a></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</code></pre><h3 id="toolhandlespy"><a class="anchor hidden-xs" href="#toolhandlespy" title="toolhandlespy"><i class="fa fa-link"></i></a><code>toolhandles.py</code></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
 <span data-linenumber="4"></span>
@@ -611,7 +637,7 @@ validateWithReference(preproc = preprocessor)
     preprocessor = preprocessor = normalizeTestSuite + SortGroupOfLines(
         <span class="hljs-string">r"^THData.*INFO executing"</span>
     )
-</div></div></code></pre><p><a id="custom-factory" target="_blank" rel="noopener"></a></p><h2 id="🔍-custom_factory"><a class="anchor hidden-xs" href="#🔍-custom_factory" title="🔍-custom_factory"><i class="fa fa-link"></i></a>🔍 custom_factory</h2><h3 id="custom_factoryqmt"><a class="anchor hidden-xs" href="#custom_factoryqmt" title="custom_factoryqmt"><i class="fa fa-link"></i></a>custom_factory.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+</div></div></code></pre><p><a id="custom-factory" target="_blank" rel="noopener"></a></p><h2 id="🔍-custom_factory"><a class="anchor hidden-xs" href="#🔍-custom_factory" title="🔍-custom_factory"><i class="fa fa-link"></i></a>🔍 custom_factory</h2><h3 id="custom_factoryqmt"><a class="anchor hidden-xs" href="#custom_factoryqmt" title="custom_factoryqmt"><i class="fa fa-link"></i></a><code>custom_factory.qmt</code></h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" ?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
 <span class="hljs-comment">&lt;!--
     (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
 
@@ -639,7 +665,7 @@ for expected in ["created CustomFactoryAlgorithm at", "CFA                  INFO
 <span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">argument</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"use_temp_dir"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">enumeral</span>&gt;</span>true<span class="hljs-tag">&lt;/<span class="hljs-name">enumeral</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
-</code></pre><h3 id="custom_factorypy"><a class="anchor hidden-xs" href="#custom_factorypy" title="custom_factorypy"><i class="fa fa-link"></i></a>custom_factory.py</h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</code></pre><h3 id="custom_factorypy"><a class="anchor hidden-xs" href="#custom_factorypy" title="custom_factorypy"><i class="fa fa-link"></i></a><code>custom_factory.py</code></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
 <span data-linenumber="4"></span>
@@ -706,7 +732,7 @@ for expected in ["created CustomFactoryAlgorithm at", "CFA                  INFO
 <span class="hljs-meta">    @pytest.mark.parametrize("line", expected)</span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_check_line</span><span class="hljs-params">(self, line, stdout)</span>:</span>
         <span class="hljs-keyword">assert</span> line <span class="hljs-keyword">in</span> stdout
-</div></div></code></pre><p><a id="heapprofiler" target="_blank" rel="noopener"></a></p><h2 id="🔍-heapprofiler"><a class="anchor hidden-xs" href="#🔍-heapprofiler" title="🔍-heapprofiler"><i class="fa fa-link"></i></a>🔍 heapprofiler</h2><h3 id="heapprofilerqmt0"><a class="anchor hidden-xs" href="#heapprofilerqmt0" title="heapprofilerqmt0"><i class="fa fa-link"></i></a>heapprofiler.qmt</h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
+</div></div></code></pre><p><a id="heapprofiler" target="_blank" rel="noopener"></a></p><h2 id="🔍-heapprofiler"><a class="anchor hidden-xs" href="#🔍-heapprofiler" title="🔍-heapprofiler"><i class="fa fa-link"></i></a>🔍 heapprofiler</h2><h3 id="heapprofilerqmt"><a class="anchor hidden-xs" href="#heapprofilerqmt" title="heapprofilerqmt"><i class="fa fa-link"></i></a><code>heapprofiler.qmt</code></h3><pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
 <span class="hljs-comment">&lt;!--
     (c) Copyright 1998-2019 CERN for the benefit of the LHCb and ATLAS collaborations
 
@@ -752,7 +778,7 @@ ApplicationMgr(EvtMax=10,
 <span class="hljs-tag">&lt;<span class="hljs-name">text</span>&gt;</span>GAUDIAPPVERSION=<span class="hljs-tag">&lt;/<span class="hljs-name">text</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">set</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">argument</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">extension</span>&gt;</span>
-</code></pre><h3 id="heapprofilerpy"><a class="anchor hidden-xs" href="#heapprofilerpy" title="heapprofilerpy"><i class="fa fa-link"></i></a><a href="http://heapprofiler.py" target="_blank" rel="noopener">heapprofiler.py</a></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</code></pre><h3 id="heapprofilerpy"><a class="anchor hidden-xs" href="#heapprofilerpy" title="heapprofilerpy"><i class="fa fa-link"></i></a><code>heapprofiler.py</code></h3><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
 <span data-linenumber="4"></span>
@@ -830,18 +856,18 @@ ApplicationMgr(EvtMax=10,
                 <i class="fa fa-bars"></i>
             </a>
             <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel">
-                <div class="toc expand"><ul class="nav">
-<li class=""><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
-<li class=""><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
-<li class=""><a href="#Introduction" title="Introduction">Introduction</a></li>
-<li class=""><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
-<li class=""><a href="#Key-Features" title="Key Features">Key Features</a></li>
+                <div class="toc"><ul class="nav">
+<li><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
+<li><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
+<li><a href="#Introduction" title="Introduction">Introduction</a></li>
+<li><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
+<li><a href="#Key-Features" title="Key Features">Key Features</a></li>
 </ul>
 </li>
-<li class=""><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
-<li class=""><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
-<li class=""><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
-<li class=""><a href="#Example0" title="Example:">Example:</a></li>
+<li><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
+<li><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
+<li><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
+<li><a href="#Example0" title="Example:">Example:</a></li>
 </ul>
 </li>
 <li class=""><a href="#Custom-Tests" title="Custom Tests">Custom Tests</a><ul class="nav">
@@ -849,16 +875,19 @@ ApplicationMgr(EvtMax=10,
 </ul>
 </li>
 <li class=""><a href="#Skipping-Tests" title="Skipping Tests">Skipping Tests</a><ul class="nav">
-<li><a href="#Example2" title="Example:">Example:</a></li>
+<li class=""><a href="#Example2" title="Example:">Example:</a></li>
 </ul>
 </li>
 <li class=""><a href="#Reporting" title="Reporting">Reporting</a><ul class="nav">
-<li><a href="#Example3" title="Example">Example</a></li>
+<li class=""><a href="#Standard-Test-Properties" title="Standard Test Properties">Standard Test Properties</a></li>
+<li class=""><a href="#Custom-Test-Properties" title="Custom Test Properties">Custom Test Properties</a></li>
+<li class=""><a href="#Example3" title="Example">Example</a></li>
 </ul>
 </li>
 <li class=""><a href="#Structured-Reference-Files" title="Structured Reference Files">Structured Reference Files</a><ul class="nav">
 <li class=""><a href="#Structure" title="Structure">Structure</a></li>
-<li class=""><a href="#Example4" title="Example">Example</a></li>
+<li class=""><a href="#Exampleyaml" title="Example.yaml">Example.yaml</a></li>
+<li class=""><a href="#From-ref-to-yaml" title="From .ref to .yaml">From .ref to .yaml</a></li>
 </ul>
 </li>
 <li class=""><a href="#Transition-from-QMTest-to-Pytest" title="Transition from QMTest to Pytest">Transition from QMTest to Pytest</a><ul class="nav">
@@ -875,18 +904,18 @@ ApplicationMgr(EvtMax=10,
 <li class=""><a href="#algsequencerpy" title="algsequencer.py">algsequencer.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-slimeventloop_scheduled_stop0" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
-<li class=""><a href="#slimeventloop_scheduled_stopqmt0" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
+<li class=""><a href="#🔍-slimeventloop_scheduled_stop" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
+<li class=""><a href="#slimeventloop_scheduled_stopqmt" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
 <li class=""><a href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stop.py">slimeventloop_scheduled_stop.py</a></li>
 </ul>
 </li>
 <li class=""><a href="#🔍-superalg_dynamic_graph" title="🔍 superalg_dynamic_graph">🔍 superalg_dynamic_graph</a><ul class="nav">
-<li class=""><a href="#superalg_dynamic_graphqmt0" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
+<li class=""><a href="#superalg_dynamic_graphqmt" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
 <li class=""><a href="#superalg_dynamic_graphpy" title="superalg_dynamic_graph.py">superalg_dynamic_graph.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-toolhandles0" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
-<li class=""><a href="#toolhandlesqmt0" title="toolhandles.qmt">toolhandles.qmt</a></li>
+<li class=""><a href="#🔍-toolhandles" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
+<li class=""><a href="#toolhandlesqmt" title="toolhandles.qmt">toolhandles.qmt</a></li>
 <li class=""><a href="#toolhandlespy" title="toolhandles.py">toolhandles.py</a></li>
 </ul>
 </li>
@@ -896,7 +925,7 @@ ApplicationMgr(EvtMax=10,
 </ul>
 </li>
 <li class=""><a href="#🔍-heapprofiler" title="🔍 heapprofiler">🔍 heapprofiler</a><ul class="nav">
-<li class=""><a href="#heapprofilerqmt0" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
+<li class=""><a href="#heapprofilerqmt" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
 <li class=""><a href="#heapprofilerpy" title="heapprofiler.py">heapprofiler.py</a></li>
 </ul>
 </li>
@@ -904,8 +933,8 @@ ApplicationMgr(EvtMax=10,
 </li>
 </ul>
 </div><div class="toc-menu" style="">
-    <a class="expand-toggle expand-all" href="#" style="display: none;">Expand all</a>
-    <a class="expand-toggle collapse-all" href="#" style="">Collapse all</a>
+    <a class="expand-toggle expand-all" href="#">Expand all</a>
+    <a class="expand-toggle collapse-all" href="#" style="display: none;">Collapse all</a>
     <a class="back-to-top" href="#">Back to top</a>
     <a class="go-to-bottom" href="#">Go to bottom</a>
 </div>
@@ -913,18 +942,18 @@ ApplicationMgr(EvtMax=10,
         </div>
     </div>
     <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:17px;display:none;"  >
-        <div class="toc expand"><ul class="nav">
-<li class=""><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
-<li class=""><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
-<li class=""><a href="#Introduction" title="Introduction">Introduction</a></li>
-<li class=""><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
-<li class=""><a href="#Key-Features" title="Key Features">Key Features</a></li>
+        <div class="toc"><ul class="nav">
+<li><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
+<li><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
+<li><a href="#Introduction" title="Introduction">Introduction</a></li>
+<li><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
+<li><a href="#Key-Features" title="Key Features">Key Features</a></li>
 </ul>
 </li>
-<li class=""><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
-<li class=""><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
-<li class=""><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
-<li class=""><a href="#Example0" title="Example:">Example:</a></li>
+<li><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
+<li><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
+<li><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
+<li><a href="#Example0" title="Example:">Example:</a></li>
 </ul>
 </li>
 <li class=""><a href="#Custom-Tests" title="Custom Tests">Custom Tests</a><ul class="nav">
@@ -932,16 +961,19 @@ ApplicationMgr(EvtMax=10,
 </ul>
 </li>
 <li class=""><a href="#Skipping-Tests" title="Skipping Tests">Skipping Tests</a><ul class="nav">
-<li><a href="#Example2" title="Example:">Example:</a></li>
+<li class=""><a href="#Example2" title="Example:">Example:</a></li>
 </ul>
 </li>
 <li class=""><a href="#Reporting" title="Reporting">Reporting</a><ul class="nav">
-<li><a href="#Example3" title="Example">Example</a></li>
+<li class=""><a href="#Standard-Test-Properties" title="Standard Test Properties">Standard Test Properties</a></li>
+<li class=""><a href="#Custom-Test-Properties" title="Custom Test Properties">Custom Test Properties</a></li>
+<li class=""><a href="#Example3" title="Example">Example</a></li>
 </ul>
 </li>
 <li class=""><a href="#Structured-Reference-Files" title="Structured Reference Files">Structured Reference Files</a><ul class="nav">
 <li class=""><a href="#Structure" title="Structure">Structure</a></li>
-<li class=""><a href="#Example4" title="Example">Example</a></li>
+<li class=""><a href="#Exampleyaml" title="Example.yaml">Example.yaml</a></li>
+<li class=""><a href="#From-ref-to-yaml" title="From .ref to .yaml">From .ref to .yaml</a></li>
 </ul>
 </li>
 <li class=""><a href="#Transition-from-QMTest-to-Pytest" title="Transition from QMTest to Pytest">Transition from QMTest to Pytest</a><ul class="nav">
@@ -958,18 +990,18 @@ ApplicationMgr(EvtMax=10,
 <li class=""><a href="#algsequencerpy" title="algsequencer.py">algsequencer.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-slimeventloop_scheduled_stop0" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
-<li class=""><a href="#slimeventloop_scheduled_stopqmt0" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
+<li class=""><a href="#🔍-slimeventloop_scheduled_stop" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
+<li class=""><a href="#slimeventloop_scheduled_stopqmt" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
 <li class=""><a href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stop.py">slimeventloop_scheduled_stop.py</a></li>
 </ul>
 </li>
 <li class=""><a href="#🔍-superalg_dynamic_graph" title="🔍 superalg_dynamic_graph">🔍 superalg_dynamic_graph</a><ul class="nav">
-<li class=""><a href="#superalg_dynamic_graphqmt0" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
+<li class=""><a href="#superalg_dynamic_graphqmt" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
 <li class=""><a href="#superalg_dynamic_graphpy" title="superalg_dynamic_graph.py">superalg_dynamic_graph.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-toolhandles0" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
-<li class=""><a href="#toolhandlesqmt0" title="toolhandles.qmt">toolhandles.qmt</a></li>
+<li class=""><a href="#🔍-toolhandles" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
+<li class=""><a href="#toolhandlesqmt" title="toolhandles.qmt">toolhandles.qmt</a></li>
 <li class=""><a href="#toolhandlespy" title="toolhandles.py">toolhandles.py</a></li>
 </ul>
 </li>
@@ -979,7 +1011,7 @@ ApplicationMgr(EvtMax=10,
 </ul>
 </li>
 <li class=""><a href="#🔍-heapprofiler" title="🔍 heapprofiler">🔍 heapprofiler</a><ul class="nav">
-<li class=""><a href="#heapprofilerqmt0" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
+<li class=""><a href="#heapprofilerqmt" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
 <li class=""><a href="#heapprofilerpy" title="heapprofiler.py">heapprofiler.py</a></li>
 </ul>
 </li>
@@ -987,8 +1019,8 @@ ApplicationMgr(EvtMax=10,
 </li>
 </ul>
 </div><div class="toc-menu" style="">
-    <a class="expand-toggle expand-all" href="#" style="display: none;">Expand all</a>
-    <a class="expand-toggle collapse-all" href="#" style="">Collapse all</a>
+    <a class="expand-toggle expand-all" href="#">Expand all</a>
+    <a class="expand-toggle collapse-all" href="#" style="display: none;">Collapse all</a>
     <a class="back-to-top" href="#">Back to top</a>
     <a class="go-to-bottom" href="#">Go to bottom</a>
 </div>
