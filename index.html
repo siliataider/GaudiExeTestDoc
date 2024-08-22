@@ -50,9 +50,12 @@
 <li><a href="#structured-reference-files">Structured Reference Files</a></li>
 <li><a href="#transition-from-qmtest-to-pytest">Transition from QMTest to Pytest</a>
 <ul>
-<li><a href="#automated-transition-scripts">Automated Transition Scripts</a></li>
+<li><a href="#automated-transition-scripts">Automated Transition Scripts</a>
+<ul>
 <li><a href="#reftoyaml_converterpy"><code>ref_to_yaml_converter.py</code></a></li>
 <li><a href="#qmt_to_pytest_converterpy"><code>qmt_to_pytest_converter.py</code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#some-examples">Some Examples</a>
@@ -65,21 +68,21 @@
 <li><a href="#heapprofiler"><code>heapprofiler</code></a></li>
 </ul>
 </li>
-</ol><p><a id="introduction" target="_blank" rel="noopener"></a></p><h1 id="Introduction"><a class="anchor hidden-xs" href="#Introduction" title="Introduction"><i class="fa fa-link"></i></a>Introduction</h1><blockquote>
-<p>The importance of tests in software development is known to everybody… or it should, so I’ll not talk about it.<br>
-To effectively run tests for a piece of software, it is important to have a testing infrastructure. Such an infrastructure should allow the developer to run the tests and check the results in the simplest possible way (if not by clicking on a button, it should be by executing a simple command). Adding new tests should be easy as well, so the introduction of tests for newly discovered bugs will not require much time, that can be devoted, instead, to fix them.<br>
-See: <a href="https://twiki.cern.ch/twiki/bin/view/Gaudi/GaudiTestingInfrastructure" target="_blank" rel="noopener">https://twiki.cern.ch/twiki/bin/view/Gaudi/GaudiTestingInfrastructure</a></p>
-</blockquote><p>So far we have been using QMTest, which was easily extended to cover the special needs of Gaudi. However, with time we realized it had some non-negligible flaws:</p><ul>
+</ol><p><a id="introduction" target="_blank" rel="noopener"></a></p><h1 id="Introduction"><a class="anchor hidden-xs" href="#Introduction" title="Introduction"><i class="fa fa-link"></i></a>Introduction</h1><p>It is well known that tests are crucial for software development, and for them to be effective, a robust testing infrastructure is required; one that ideally enables the developer to get to the results in a matter of a click, or at most, a simple command execution.<br>
+Adding new tests should also be streamlined to save time on newly discovered bugs, and rather allocate it into fixing them.<br>
+The above is the sole purpose of the below.</p><p>So far we have been using QMTest, which was easily extended to cover the special needs of Gaudi. See: <a href="https://twiki.cern.ch/twiki/bin/view/Gaudi/GaudiTestingInfrastructure" target="_blank" rel="noopener"> Gaudi Testing Infrastructure </a><br>
+However, with time we realized it had some non-negligible flaws:</p><ul>
 <li>The xml format is too verbose and not human readable.</li>
-<li>We have Python code inside an xml file (for the options and the custom validators).</li>
-<li>We are contrained to putting all the validation logic into one function that tests different parts and reports multiple failures.</li>
-<li>Using results and causes objects to report to ctest.</li>
+<li>Python code is present inside xml files (for the options and the custom validators).</li>
+<li>Tests are constrained to put all the validation logic into one function that tests different parts and reports multiple failures.</li>
+<li>Tests use custom objects (result and causes) to report to ctest.</li>
 </ul><p>To address these issues we have now developed a new testing infrastructure based on Pytest, a modern and powerful testing framework that offers more flexibility and simplicity. The new infrastructure offers:</p><ul>
 <li>Simple syntax for cleaner code.</li>
 <li>Multiple small and concise test cases.</li>
 <li>Fixtures for test customization.</li>
 <li>Plugins for extensibility.</li>
-</ul><p><a id="gaudiexetest" target="_blank" rel="noopener"></a></p><h1 id="GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest"><a class="anchor hidden-xs" href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest"><i class="fa fa-link"></i></a>GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</h1><p>To cater to Gaudi’s specific needs, we have developed a custom test class for Pytest: <code>GaudiTesting.GaudiExeTest</code>.<br>
+</ul><p>To ease into this transition, we provide a couple of scripts to help you migrate your already existing tests.<br>
+See <a href="#automated-transition-scripts">Automated Transition Scripts</a></p><p><a id="gaudiexetest" target="_blank" rel="noopener"></a></p><h1 id="GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest"><a class="anchor hidden-xs" href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest"><i class="fa fa-link"></i></a>GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</h1><p>To cater to Gaudi’s specific needs, we have developed a custom test class for Pytest: <code>GaudiTesting.GaudiExeTest</code>.<br>
 To benefit from its features, you need to write a test class that inherits from this base class, to get started:</p><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
@@ -96,34 +99,34 @@ To benefit from its features, you need to write a test class that inherits from 
 <li><strong>Fixtures</strong>: A set of features are available to make it easier to add custom tests and access the applciation output. See <a href="#custom-tests">Custom Tests</a></li>
 <li><strong>Working Directory Specification</strong>: By default, the tests run in a pytest temporary directory. A different one can be specified.</li>
 <li><strong>Direct Option Specification</strong>: Allows specifying options directly in the test class.</li>
-</ul><p><a id="test-configuration" target="_blank" rel="noopener"></a></p><h1 id="Test-Configuration"><a class="anchor hidden-xs" href="#Test-Configuration" title="Test-Configuration"><i class="fa fa-link"></i></a>Test Configuration</h1><p>Tests are configured through class attributes:</p><ul>
+</ul><p><a id="test-configuration" target="_blank" rel="noopener"></a></p><h1 id="Test-Configuration"><a class="anchor hidden-xs" href="#Test-Configuration" title="Test-Configuration"><i class="fa fa-link"></i></a>Test Configuration</h1><p>You can configure your tests through class attributes:</p><ul>
 <li><code>command</code>: A list specifying the command line program and arguments.</li>
-</ul><pre><code class="py hljs"><span class="hljs-attr">command</span> = [<span class="hljs-string">'gaudirun.py'</span>, <span class="hljs-string">'--option1'</span>, <span class="hljs-string">'value'</span>]
+</ul><pre><code class="py hljs"><span class="hljs-attr">command</span> = [<span class="hljs-string">"gaudirun.py"</span>, <span class="hljs-string">"-v"</span>, <span class="hljs-string">"path/to/options.py"</span>]
 </code></pre><ul>
-<li><code>popenKwargs</code>: Additional subprocess arguments can be specified through popenKwargs. See <a href="https://docs.python.org/3/library/subprocess.html#popen-constructor" target="_blank" rel="noopener">Popen Constructor</a></li>
+<li><code>popenKwargs</code>: A dictionary specifying extra subprocess arguments. See <a href="https://docs.python.org/3/library/subprocess.html#popen-constructor" target="_blank" rel="noopener">Popen Constructor</a></li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">popenKwargs</span> = {<span class="hljs-string">'key'</span>: value}
 </code></pre><ul>
-<li><code>environment</code>: You can customize the execution environment by setting the environment attribute, which accepts a list of key=value strings. You can use  helper functions for more complex handling (<code>update_env</code>, <code>expand_vars_from</code>, <code>unset_vars</code>).</li>
+<li><code>environment</code>: A list of key=value strings customize the execution environment. .</li>
 </ul><pre><code class="pyth hljs"><span class="hljs-attr">environment</span> = [<span class="hljs-string">'LD_LIBRARY_PATH=/path/to/libs'</span>]
-</code></pre><p>or:</p><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</code></pre><p>Instead, you can use  helper functions for more complex handling (<code>update_env</code>, <code>expand_vars_from</code>, <code>unset_vars</code>)</p><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span></div><div class="code"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">update_env</span><span class="hljs-params">(self, env)</span>:</span>
     self.unset_vars(env, [<span class="hljs-string">"GAUDIAPPNAME"</span>, <span class="hljs-string">"GAUDIAPPVERSION"</span>])
     env[<span class="hljs-string">"LD_LIBRARY_PATH"</span>] = self.expand_vars_from( <span class="hljs-string">"$BASE_DIR/lib:$BASE_DIR/plugins:$LD_LIBRARY_PATH"</span>, env)
 </div></div></code></pre><ul>
-<li><code>cwd</code>: You can configure your test to run in a specified directory by setting <code>cwd</code>. By default, a pytest temporary directory is used.</li>
+<li><code>cwd</code>: A string specifying the directory in which the tests will run. By default, a pytest temporary directory is used.</li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">cwd</span> = <span class="hljs-string">'/path/to/directory'</span>
 </code></pre><ul>
-<li><code>reference</code>: You can specify the path to a <mark>yaml</mark> reference file containing reference blocks of stdout, stderr, histograms and ttrees. See: <a href="#structured-reference-files">Structured Reference Files</a></li>
+<li><code>reference</code>: The path to a structured <mark>yaml</mark> reference file containing reference blocks of stdout, stderr, histograms and ttrees. See: <a href="#structured-reference-files">Structured Reference Files</a></li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">reference</span> = <span class="hljs-string">'test_reference.yaml'</span>
 </code></pre><ul>
-<li><code>timeout</code>: You can specify a timeout in seconds, after which the application will terminate and the tests will report a failure. The default value is 600s. See <a href="#output-management-exception-handling">Output Management &amp; Exception Handling</a></li>
+<li><code>timeout</code>: A timeout in seconds, after which the application will terminate and the tests will report a failure. The default value is 600s. See <a href="#output-management-exception-handling">Output Management &amp; Exception Handling</a></li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">timeout</span> = <span class="hljs-number">300</span>
 </code></pre><ul>
-<li><code>returncode</code>: You can specify an expected returncode. The default expected value is 0.</li>
+<li><code>returncode</code>: The expected returncode. The default expected value is 0.</li>
 </ul><pre><code class="py hljs"><span class="hljs-attr">returncode</span> = <span class="hljs-number">4</span>
 </code></pre><ul>
-<li><code>options()</code> or <code>options</code>: Test options are defined in functions for pyopts or as strings for opts or as dictionaries for jsonopts. They will be put in a temporary file with the corresponding extension and appended to the command.</li>
+<li><code>options()</code> or <code>options</code>: Test options. They are defined in functions for pyopts or as strings for opts or as dictionaries for jsonopts. They are put in a temporary file with the corresponding extension and appended to the command.</li>
 </ul><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
@@ -141,7 +144,7 @@ To benefit from its features, you need to write a test class that inherits from 
         ApplicationMgr.EvtMax = 1L;
         """</span>
 </div></div></code></pre><p><a id="preprocessor" target="_blank" rel="noopener"></a></p><ul>
-<li><code>preprocessor</code>: Default preprocessing of outputs can be overridden by redefining the preprocessor attribute. See: <a href="#test_stdout"><code>test_stdout</code></a></li>
+<li><code>preprocessor</code>: Attribute to override the default preprocessor of outputs <code>normalizeTestSuite</code>. See: <a href="#test_stdout"><code>test_stdout</code></a></li>
 </ul><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
@@ -156,18 +159,19 @@ To benefit from its features, you need to write a test class that inherits from 
 </div></div></code></pre><p><mark><strong>Note:</strong></mark></p><ul>
 <li>Paths for command arguments and reference files are resolved <mark><strong>relative to the file where the test class is defined</strong></mark>.</li>
 <li>There is no default executable; tests must explicitly specify the executable, such as <code>gaudirun.py</code> or <code>Gaudi.exe</code>.</li>
+<li>Check the <a href="#reftoyaml_converterpy"><code>utils/ref_to_yaml_converter.py</code></a> script to help you get started</li>
 </ul><p><a id="output-management-exception-handling" target="_blank" rel="noopener"></a></p><h1 id="Output-Management-amp-Exception-Handling"><a class="anchor hidden-xs" href="#Output-Management-amp-Exception-Handling" title="Output-Management-amp-Exception-Handling"><i class="fa fa-link"></i></a>Output Management &amp; Exception Handling</h1><ul>
 <li><strong>Stream Capping</strong>: <code>stdout</code> and <code>stderr</code> are capped at <strong>100MB</strong>. Exceeding this limit results in a <code>ExceededStreamError</code></li>
-<li><strong>Timeouts</strong>: Unless another value is specified, the default value is 600s. Exceeding this limit results in a <code>ProcessTimeoutError</code>.</li>
+<li><strong>Timeouts</strong>: Unless another value is specified, the default value is <strong>600s</strong>. Exceeding this limit results in a <code>ProcessTimeoutError</code>.</li>
 <li>If such errors occur, <code>testFixtureSetup</code> will <mark><strong>fail</strong></mark> after reporting all relevant information, including the failure. <mark><strong>All other tests are skipped</strong></mark>.</li>
 </ul><p><a id="standard-tests" target="_blank" rel="noopener"></a></p><h1 id="Standard-Tests"><a class="anchor hidden-xs" href="#Standard-Tests" title="Standard-Tests"><i class="fa fa-link"></i></a>Standard Tests</h1><p>By default, <code>GaudiExeTest</code> will make sure a set of tests will run:<br>
 <a id="test_stdout" target="_blank" rel="noopener"></a></p><ul>
-<li><code>test_stdout</code>: will run only if a reference file is provided. Will preprocess the standard output of the application and compare it to the reference block. Default preprocessing of outputs can be overridden by redefining the preprocessor attribute. See <a href="#preprocessor"><code>preprocessor</code></a></li>
+<li><code>test_stdout</code>: if a reference file is provided, will preprocess the standard output of the application and compare it to the reference block. otherwise will not run. Default preprocessing of outputs can be overridden by redefining the preprocessor attribute. See <a href="#preprocessor"><code>preprocessor</code></a></li>
 <li><code>test_histos</code>: same.</li>
 <li><code>test_ttrees</code>: same.</li>
-<li><code>tets_stderr</code>: if a reference is procided, validates it, otherwise checks if stderr is empty.</li>
+<li><code>tets_stderr</code>: if a reference is provided, validates it, otherwise checks if stderr is empty.</li>
 <li><code>test_returncode</code>: if an expected value is provided, validates it, otherwise checks if the return code is 0.</li>
-</ul><h2 id="Example0"><a class="anchor hidden-xs" href="#Example0" title="Example0"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+</ul><h2 id="Example"><a class="anchor hidden-xs" href="#Example" title="Example"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
 <span data-linenumber="4"></span>
@@ -176,9 +180,24 @@ To benefit from its features, you need to write a test class that inherits from 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestDefaults</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     command = [<span class="hljs-string">'Gaudi.exe'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
     reference = <span class="hljs-string">'my_reference.yaml'</span>
-</div></div></code></pre><p>Just by writing this, <mark><strong>all the default tests will run without any additional configuration</strong></mark>.</p><p><a id="custom-tests" target="_blank" rel="noopener"></a></p><h1 id="Custom-Tests"><a class="anchor hidden-xs" href="#Custom-Tests" title="Custom-Tests"><i class="fa fa-link"></i></a>Custom Tests</h1><p>Custom tests can be added:</p><ul>
-<li>Some utilities are provided like <code>find_reference_block</code>, <code>count_error_lines</code>, and <code>validate_json_with_reference</code>.</li>
-<li>Some <strong>fixtures</strong> are provided as well to easily access the application’s output and use it in the tests:
+</div></div></code></pre><p>Just by writing this, <mark><strong>all the default tests will run without any additional configuration</strong></mark>.</p><h2 id="Disable-Or-Override-A-Standard-Test"><a class="anchor hidden-xs" href="#Disable-Or-Override-A-Standard-Test" title="Disable-Or-Override-A-Standard-Test"><i class="fa fa-link"></i></a>Disable Or Override A Standard Test:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span>
+<span data-linenumber="3"></span>
+<span data-linenumber="4"></span>
+<span data-linenumber="5"></span>
+<span data-linenumber="6"></span>
+<span data-linenumber="7"></span>
+<span data-linenumber="8"></span></div><div class="code">    <span class="hljs-comment"># Override the logic of test_stdout</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_stdout</span><span class="hljs-params">(self, stdout)</span>:</span>
+        <span class="hljs-comment"># Do something different with stdout</span>
+        ...
+	
+    <span class="hljs-comment"># Ignore stderr</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_stderr</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">pass</span>
+</div></div></code></pre><p><a id="custom-tests" target="_blank" rel="noopener"></a></p><h1 id="Custom-Tests"><a class="anchor hidden-xs" href="#Custom-Tests" title="Custom-Tests"><i class="fa fa-link"></i></a>Custom Tests</h1><p>You can add custom tests to your test class:</p><ul>
+<li>We provide some utilities like <code>find_reference_block</code>, <code>count_error_lines</code>, and <code>validate_json_with_reference</code>.</li>
+<li>We provide some <a href="https://docs.pytest.org/en/6.2.x/fixture.html#back-to-fixtures" target="_blank" rel="noopener"><strong>fixtures</strong></a> as well to easily access the application’s output and use it in the tests, you can use them by passing them as an argument to your test definition:
 <ul>
 <li><code>stdout</code>: the application’s standard outpout.</li>
 <li><code>stderr</code>: the application’s standard error if any.</li>
@@ -199,22 +218,24 @@ To benefit from its features, you need to write a test class that inherits from 
 <span data-linenumber="10"></span>
 <span data-linenumber="11"></span>
 <span data-linenumber="12"></span>
-<span data-linenumber="13"></span></div><div class="code"><span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+<span data-linenumber="13"></span>
+<span data-linenumber="14"></span></div><div class="code"><span class="hljs-keyword">import</span> os
+
+<span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestCustom</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     command = [<span class="hljs-string">'gaudirun.py'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
     
-    <span class="hljs-comment"># Add extra validation</span>
+    <span class="hljs-comment"># Add extra validation using the stdout fixture</span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_count_error_lines</span><span class="hljs-params">(self, stdout)</span>:</span>
         GaudiExeTest.count_error_lines({}, stdout.decode())
 	
-    <span class="hljs-comment"># Override the default test</span>
-    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_stdout</span><span class="hljs-params">(self, monkeypatch, stdout)</span>:</span>
-        monkeypatch.chdir(self.cwd)
-        <span class="hljs-keyword">assert</span> self.preprocessor(open(<span class="hljs-string">"myAppOutput.csv"</span>).read()) == self.preprocessor(stdout.decode(<span class="hljs-string">"utf-8"</span>, errors=<span class="hljs-string">"backslashreplace"</span>))
+    <span class="hljs-comment"># Access application's output using the cwd fixture</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_output_file_exists</span><span class="hljs-params">(self, cwd)</span>:</span>
+        <span class="hljs-keyword">assert</span> os.path.exists(cwd / <span class="hljs-string">"output.root"</span>)
 </div></div></code></pre><p><a id="skipping-tests" target="_blank" rel="noopener"></a></p><h1 id="Skipping-Tests"><a class="anchor hidden-xs" href="#Skipping-Tests" title="Skipping-Tests"><i class="fa fa-link"></i></a>Skipping Tests</h1><ul>
-<li>Tests can be skipped for any reason using the <code>@pytest.mark.skipif</code> marker</li>
-<li>Platform-specific test exclusion can be facilitated by using the <code>@pytest.mark.skipif</code> marker and the <code>platform_matches</code> helper function, which performs regex matching against the platform.</li>
+<li>You can skip tests for any reason using the <a href="https://docs.pytest.org/en/7.1.x/reference/reference.html#pytest-mark-skipif" target="_blank" rel="noopener"><code>@pytest.mark.skipif</code></a> marker.</li>
+<li>You skip tests on certain platforms using the <code>@pytest.mark.skipif</code> marker and the <code>platform_matches</code> helper function, which performs regex matching against the platform.</li>
 </ul><h2 id="Example2"><a class="anchor hidden-xs" href="#Example2" title="Example2"><i class="fa fa-link"></i></a>Example:</h2><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
 <span data-linenumber="2"></span>
 <span data-linenumber="3"></span>
@@ -254,9 +275,11 @@ To benefit from its features, you need to write a test class that inherits from 
 </ul>
 </li>
 </ul><h2 id="Custom-Test-Properties"><a class="anchor hidden-xs" href="#Custom-Test-Properties" title="Custom-Test-Properties"><i class="fa fa-link"></i></a>Custom Test Properties</h2><ul>
-<li>Tests can report additional information through the <code>record_property</code> fixture.</li>
-<li>The properties are prefixed with the test name and class name in the output tag to differentiate properties across tests: <code>className.testName.propertyName</code></li>
-</ul><h2 id="Example3"><a class="anchor hidden-xs" href="#Example3" title="Example3"><i class="fa fa-link"></i></a>Example</h2><pre><code class="python hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestReport</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+<li>Your tests can report additional information through the <a href="https://docs.pytest.org/en/7.1.x/reference/reference.html#record-property" target="_blank" rel="noopener"><code>record_property</code></a> fixture.</li>
+<li>The properties are prefixed with the test name and class name in the output tag to differentiate properties across tests, so you can identify them in the GUI as <code>className.testName.propertyName</code></li>
+</ul><h2 id="Example3"><a class="anchor hidden-xs" href="#Example3" title="Example3"><i class="fa fa-link"></i></a>Example</h2><pre><code class="python hljs"><span class="hljs-keyword">from</span> GaudiTesting <span class="hljs-keyword">import</span> GaudiExeTest
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestReport</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
     command = [<span class="hljs-string">'Gaudi.exe'</span>, <span class="hljs-string">'--option'</span>, <span class="hljs-string">'value'</span>]
     
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">test_reporting</span><span class="hljs-params">(self, record_property)</span>:</span>
@@ -283,23 +306,44 @@ The sections for which there are currently default validation tests are:</p><ul>
 <span class="hljs-attr">   Name:</span> <span class="hljs-string">'100'</span>
 <span class="hljs-attr">   Title:</span> <span class="hljs-string">Hello</span> <span class="hljs-string">World</span>
 <span class="hljs-attr">   Entries:</span> <span class="hljs-number">1000</span>
-</code></pre><h2 id="From-ref-to-yaml"><a class="anchor hidden-xs" href="#From-ref-to-yaml" title="From-ref-to-yaml"><i class="fa fa-link"></i></a>From .ref to .yaml</h2><p>If you would like to convert your <code>.ref</code> reference file into a structured <code>.yaml</code> file to use it in a test, see: <a href="#reftoyaml_converterpy">utils/ref_to_yaml_converter.py</a>.</p><p><a id="transition-from-qmtest-to-pytest" target="_blank" rel="noopener"></a></p><h1 id="Transition-from-QMTest-to-Pytest"><a class="anchor hidden-xs" href="#Transition-from-QMTest-to-Pytest" title="Transition-from-QMTest-to-Pytest"><i class="fa fa-link"></i></a>Transition from QMTest to Pytest</h1><p><a id="automated-transition-scripts" target="_blank" rel="noopener"></a></p><h2 id="Automated-Transition-Scripts"><a class="anchor hidden-xs" href="#Automated-Transition-Scripts" title="Automated-Transition-Scripts"><i class="fa fa-link"></i></a>Automated Transition Scripts</h2><p>To facilitate the transition from QMTest to Pytest, we have 2 scripts that automate part of this process.</p><p><a id="reftoyaml_converterpy" target="_blank" rel="noopener"></a></p><h3 id="utilsref_to_yaml_converterpy"><a class="anchor hidden-xs" href="#utilsref_to_yaml_converterpy" title="utilsref_to_yaml_converterpy"><i class="fa fa-link"></i></a><code>utils/ref_to_yaml_converter.py</code></h3><p>The <code>ref_to_yaml_converter.py</code> script automates the conversion of .ref reference files into YAML format by reading the content of the .ref files and restructuring them accordingly.</p><h4 id="Description"><a class="anchor hidden-xs" href="#Description" title="Description"><i class="fa fa-link"></i></a>Description:</h4><ul>
+</code></pre><h2 id="Platform-Specific-Reference-Files"><a class="anchor hidden-xs" href="#Platform-Specific-Reference-Files" title="Platform-Specific-Reference-Files"><i class="fa fa-link"></i></a>Platform-Specific Reference Files:</h2><p>The convention for platform-specific reference files is the following:</p><pre><code>filename.platform.yaml
+</code></pre><h3 id="Example4"><a class="anchor hidden-xs" href="#Example4" title="Example4"><i class="fa fa-link"></i></a>Example:</h3><pre><code>Maps.gcc52.yaml
+Maps.winxp.yaml
+Maps.yaml
+</code></pre><h2 id="From-ref-to-yaml"><a class="anchor hidden-xs" href="#From-ref-to-yaml" title="From-ref-to-yaml"><i class="fa fa-link"></i></a>From .ref to .yaml</h2><p>If you would like to convert your <code>.ref</code> reference file into a structured <code>.yaml</code> file to use it in a test, you can use the <code>ref_to_yaml_converter.py</code> script. The script also converts reference files with a platform extention.<br>
+See: <a href="#reftoyaml_converterpy"><code>utils/ref_to_yaml_converter.py</code></a>.</p><p><a id="transition-from-qmtest-to-pytest" target="_blank" rel="noopener"></a></p><h1 id="Transition-from-QMTest-to-Pytest"><a class="anchor hidden-xs" href="#Transition-from-QMTest-to-Pytest" title="Transition-from-QMTest-to-Pytest"><i class="fa fa-link"></i></a>Transition from QMTest to Pytest</h1><p><a id="automated-transition-scripts" target="_blank" rel="noopener"></a></p><h2 id="Automated-Transition-Scripts"><a class="anchor hidden-xs" href="#Automated-Transition-Scripts" title="Automated-Transition-Scripts"><i class="fa fa-link"></i></a>Automated Transition Scripts</h2><p>To facilitate the transition from QMTest to Pytest, we have 2 scripts that automate parts of this process.</p><p><a id="reftoyaml_converterpy" target="_blank" rel="noopener"></a></p><h2 id="utilsref_to_yaml_converterpy"><a class="anchor hidden-xs" href="#utilsref_to_yaml_converterpy" title="utilsref_to_yaml_converterpy"><i class="fa fa-link"></i></a><code>utils/ref_to_yaml_converter.py</code></h2><p>The <code>ref_to_yaml_converter.py</code> script automates the conversion of .ref reference files into YAML format by reading the content of the .ref files and restructuring them accordingly.</p><h4 id="Description"><a class="anchor hidden-xs" href="#Description" title="Description"><i class="fa fa-link"></i></a>Description:</h4><ul>
 <li><strong>Input</strong>: .ref files containing expected test outputs, such as stdout, stderr, histograms, and ttree summaries.</li>
 <li><strong>Output</strong>: YAML files structured for use in Pytest that contain the same information in a structured format.</li>
+<li>The script renames <code>example.ref</code> to <code>example.yaml</code> and <code>example.ref.platform</code> to <code>example.platform.yaml</code>.</li>
 </ul><h4 id="Usage"><a class="anchor hidden-xs" href="#Usage" title="Usage"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py &lt;file_or_directory&gt;
 </code></pre><ul>
 <li>If a single <strong>file</strong> is provided, it will convert that file.</li>
 <li>If a <strong>directory</strong> is provided, the script will process all .ref files within that directory.</li>
 <li>The output files are stored in the <strong>same directory</strong> as the input files.</li>
 </ul><h4 id="Example5"><a class="anchor hidden-xs" href="#Example5" title="Example5"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python ref_to_yaml_converter.py ../GaudiTestSuite/tests/qmtest/refs
-</code></pre><p><a id="qmt_to_pytest_converterpy" target="_blank" rel="noopener"></a></p><h3 id="utilsqmt_to_pytest_converterpy"><a class="anchor hidden-xs" href="#utilsqmt_to_pytest_converterpy" title="utilsqmt_to_pytest_converterpy"><i class="fa fa-link"></i></a><code>utils/qmt_to_pytest_converter.py</code></h3><p>The <code>qmt_to_pytest_converter.py</code> script facilitates the conversion of QMTest test files (.qmt) into Pytest-compatible Python test scripts. It parses the .qmt files and generates equivalent Pytest test classes with the corresponding attributes.</p><h4 id="Description1"><a class="anchor hidden-xs" href="#Description1" title="Description1"><i class="fa fa-link"></i></a>Description:</h4><ul>
+</code></pre><p><a id="qmt_to_pytest_converterpy" target="_blank" rel="noopener"></a></p><h2 id="utilsqmt_to_pytest_converterpy"><a class="anchor hidden-xs" href="#utilsqmt_to_pytest_converterpy" title="utilsqmt_to_pytest_converterpy"><i class="fa fa-link"></i></a><code>utils/qmt_to_pytest_converter.py</code></h2><p>The <code>qmt_to_pytest_converter.py</code> script facilitates the conversion of QMTest test files (.qmt) into Pytest-compatible Python test scripts. It parses the .qmt files and generates equivalent Pytest test classes with the corresponding attributes.</p><h4 id="Description1"><a class="anchor hidden-xs" href="#Description1" title="Description1"><i class="fa fa-link"></i></a>Description:</h4><ul>
 <li><strong>Input</strong>: .qmt files that define QMTest tests.</li>
 <li><strong>Output</strong>: Pytest test files inheriting from GaudiExeTest.</li>
-</ul><h4 id="Limits"><a class="anchor hidden-xs" href="#Limits" title="Limits"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Limits</span>:</h4><p>If your test has a custom validator, the script will create the test class’s skeleton and add a test that <mark><strong>fails</strong></mark>. You will have to manually adapt it.</p><h4 id="Usage1"><a class="anchor hidden-xs" href="#Usage1" title="Usage1"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py &lt;file.qmt&gt;
+<li>The script renames <code>my_example.qmt</code> to <code>test_my_example.py</code>.</li>
+<li>The script creates a python test class with the same name as the file converted to Pascal Case appending <code>Test</code> in the beginning as per the <a href="https://docs.pytest.org/en/stable/explanation/goodpractices.html#conventions-for-python-test-discovery" target="_blank" rel="noopener">Conventions for Python test discovery</a>:</li>
+</ul><pre><code class="python hljs"><div class="wrapper"><div class="gutter linenumber"><span data-linenumber="1"></span>
+<span data-linenumber="2"></span></div><div class="code"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TestMyExample</span><span class="hljs-params">(GaudiExeTest)</span>:</span>
+    ...
+</div></div></code></pre><h4 id="Limits"><a class="anchor hidden-xs" href="#Limits" title="Limits"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Limits</span>:</h4><p>If your test has a custom validator, the script will create the test class’s skeleton and add a test that <mark><strong>fails</strong></mark>. You will have to manually adapt it.</p><h4 id="Usage1"><a class="anchor hidden-xs" href="#Usage1" title="Usage1"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Usage</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py &lt;file.qmt&gt;
 </code></pre><h4 id="Example6"><a class="anchor hidden-xs" href="#Example6" title="Example6"><i class="fa fa-link"></i></a><span style="text-decoration:underline">Example</span>:</h4><pre><code class="bash hljs">python utils/qmt_to_pytest_converter.py ./tests/gauditestsuite.qms/test_example.qmt
 </code></pre><ul>
-<li><strong>Input</strong>:</li>
-</ul><details>
+<li><strong>Input</strong>:<br>
+In the following example, the script handles the following:
+<ul>
+<li>Detects the unsupported platforms and adds the <code>skipif</code> pytest marker.</li>
+<li>Concatenates the command and the arguments.</li>
+<li>Moves the options code into a function and replaces the wildcard import.</li>
+<li>Adjusts the reference file path knowing that for qmtest, the paths are relative to the qmtest directory while for pytest they are relative to the file where the test class is defined.</li>
+<li>Unsets the environment variables.</li>
+<li>Detects that there is a complex validation logic and creates a test that fails indicating it requires manual implementation.</li>
+</ul>
+</li>
+</ul><details open="">
 <summary>🔍 cpuprofiler.qmt</summary>
 <pre><code class="xml hljs"><span class="hljs-meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><span class="hljs-meta">&lt;!DOCTYPE extension  PUBLIC '-//QM/2.3/Extension//EN'  'http://www.codesourcery.com/qm/dtds/2.3/-//qm/2.3/extension//en.dtd'&gt;</span>
 <span class="hljs-comment">&lt;!--
@@ -356,7 +400,7 @@ validateWithReference(preproc = preprocessor)
 </code></pre>
 </details><ul>
 <li><strong>Output</strong>:</li>
-</ul><details>
+</ul><details open="">
 <summary>🔍 test_cpuprofiler.py</summary>
 <pre><code class="python hljs"><span class="hljs-comment">#####################################################################################</span>
 <span class="hljs-comment"># (c) Copyright 2023 CERN for the benefit of the LHCb and ATLAS collaborations      #</span>
@@ -857,7 +901,7 @@ ApplicationMgr(EvtMax=10,
             </a>
             <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel">
                 <div class="toc"><ul class="nav">
-<li><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
+<li class=""><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
 <li><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
 <li><a href="#Introduction" title="Introduction">Introduction</a></li>
 <li><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
@@ -867,66 +911,69 @@ ApplicationMgr(EvtMax=10,
 <li><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
 <li><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
 <li><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
-<li><a href="#Example0" title="Example:">Example:</a></li>
+<li><a href="#Example" title="Example:">Example:</a></li>
+<li><a href="#Disable-Or-Override-A-Standard-Test" title="Disable Or Override A Standard Test:">Disable Or Override A Standard Test:</a></li>
 </ul>
 </li>
-<li class=""><a href="#Custom-Tests" title="Custom Tests">Custom Tests</a><ul class="nav">
-<li class=""><a href="#Example1" title="Example:">Example:</a></li>
+<li><a href="#Custom-Tests" title="Custom Tests">Custom Tests</a><ul class="nav">
+<li><a href="#Example1" title="Example:">Example:</a></li>
 </ul>
 </li>
-<li class=""><a href="#Skipping-Tests" title="Skipping Tests">Skipping Tests</a><ul class="nav">
-<li class=""><a href="#Example2" title="Example:">Example:</a></li>
+<li><a href="#Skipping-Tests" title="Skipping Tests">Skipping Tests</a><ul class="nav">
+<li><a href="#Example2" title="Example:">Example:</a></li>
 </ul>
 </li>
-<li class=""><a href="#Reporting" title="Reporting">Reporting</a><ul class="nav">
-<li class=""><a href="#Standard-Test-Properties" title="Standard Test Properties">Standard Test Properties</a></li>
-<li class=""><a href="#Custom-Test-Properties" title="Custom Test Properties">Custom Test Properties</a></li>
-<li class=""><a href="#Example3" title="Example">Example</a></li>
+<li><a href="#Reporting" title="Reporting">Reporting</a><ul class="nav">
+<li><a href="#Standard-Test-Properties" title="Standard Test Properties">Standard Test Properties</a></li>
+<li><a href="#Custom-Test-Properties" title="Custom Test Properties">Custom Test Properties</a></li>
+<li><a href="#Example3" title="Example">Example</a></li>
 </ul>
 </li>
-<li class=""><a href="#Structured-Reference-Files" title="Structured Reference Files">Structured Reference Files</a><ul class="nav">
-<li class=""><a href="#Structure" title="Structure">Structure</a></li>
-<li class=""><a href="#Exampleyaml" title="Example.yaml">Example.yaml</a></li>
-<li class=""><a href="#From-ref-to-yaml" title="From .ref to .yaml">From .ref to .yaml</a></li>
+<li><a href="#Structured-Reference-Files" title="Structured Reference Files">Structured Reference Files</a><ul class="nav">
+<li><a href="#Structure" title="Structure">Structure</a></li>
+<li><a href="#Exampleyaml" title="Example.yaml">Example.yaml</a></li>
+<li><a href="#Platform-Specific-Reference-Files" title="Platform-Specific Reference Files:">Platform-Specific Reference Files:</a><ul class="nav">
+<li><a href="#Example4" title="Example:">Example:</a></li>
 </ul>
 </li>
-<li class=""><a href="#Transition-from-QMTest-to-Pytest" title="Transition from QMTest to Pytest">Transition from QMTest to Pytest</a><ul class="nav">
-<li class=""><a href="#Automated-Transition-Scripts" title="Automated Transition Scripts">Automated Transition Scripts</a><ul class="nav">
-<li class=""><a href="#utilsref_to_yaml_converterpy" title="utils/ref_to_yaml_converter.py">utils/ref_to_yaml_converter.py</a></li>
-<li class=""><a href="#utilsqmt_to_pytest_converterpy" title="utils/qmt_to_pytest_converter.py">utils/qmt_to_pytest_converter.py</a></li>
+<li><a href="#From-ref-to-yaml" title="From .ref to .yaml">From .ref to .yaml</a></li>
 </ul>
 </li>
+<li><a href="#Transition-from-QMTest-to-Pytest" title="Transition from QMTest to Pytest">Transition from QMTest to Pytest</a><ul class="nav">
+<li><a href="#Automated-Transition-Scripts" title="Automated Transition Scripts">Automated Transition Scripts</a></li>
+<li><a href="#utilsref_to_yaml_converterpy" title="utils/ref_to_yaml_converter.py">utils/ref_to_yaml_converter.py</a></li>
+<li><a href="#utilsqmt_to_pytest_converterpy" title="utils/qmt_to_pytest_converter.py">utils/qmt_to_pytest_converter.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#Some-Examples" title="Some Examples">Some Examples</a><ul class="nav">
-<li class=""><a href="#🔍-algsequencer" title="🔍 algsequencer">🔍 algsequencer</a><ul class="nav">
-<li class=""><a href="#algsequencerqmt" title="algsequencer.qmt">algsequencer.qmt</a></li>
-<li class=""><a href="#algsequencerpy" title="algsequencer.py">algsequencer.py</a></li>
+<li><a href="#Some-Examples" title="Some Examples">Some Examples</a><ul class="nav">
+<li><a href="#🔍-algsequencer" title="🔍 algsequencer">🔍 algsequencer</a><ul class="nav">
+<li><a href="#algsequencerqmt" title="algsequencer.qmt">algsequencer.qmt</a></li>
+<li><a href="#algsequencerpy" title="algsequencer.py">algsequencer.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-slimeventloop_scheduled_stop" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
-<li class=""><a href="#slimeventloop_scheduled_stopqmt" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
-<li class=""><a href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stop.py">slimeventloop_scheduled_stop.py</a></li>
+<li><a href="#🔍-slimeventloop_scheduled_stop" title="🔍 slimeventloop_scheduled_stop">🔍 slimeventloop_scheduled_stop</a><ul class="nav">
+<li><a href="#slimeventloop_scheduled_stopqmt" title="slimeventloop_scheduled_stop.qmt">slimeventloop_scheduled_stop.qmt</a></li>
+<li><a href="#slimeventloop_scheduled_stoppy" title="slimeventloop_scheduled_stop.py">slimeventloop_scheduled_stop.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-superalg_dynamic_graph" title="🔍 superalg_dynamic_graph">🔍 superalg_dynamic_graph</a><ul class="nav">
-<li class=""><a href="#superalg_dynamic_graphqmt" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
-<li class=""><a href="#superalg_dynamic_graphpy" title="superalg_dynamic_graph.py">superalg_dynamic_graph.py</a></li>
+<li><a href="#🔍-superalg_dynamic_graph" title="🔍 superalg_dynamic_graph">🔍 superalg_dynamic_graph</a><ul class="nav">
+<li><a href="#superalg_dynamic_graphqmt" title="superalg_dynamic_graph.qmt">superalg_dynamic_graph.qmt</a></li>
+<li><a href="#superalg_dynamic_graphpy" title="superalg_dynamic_graph.py">superalg_dynamic_graph.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-toolhandles" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
-<li class=""><a href="#toolhandlesqmt" title="toolhandles.qmt">toolhandles.qmt</a></li>
-<li class=""><a href="#toolhandlespy" title="toolhandles.py">toolhandles.py</a></li>
+<li><a href="#🔍-toolhandles" title="🔍 toolhandles">🔍 toolhandles</a><ul class="nav">
+<li><a href="#toolhandlesqmt" title="toolhandles.qmt">toolhandles.qmt</a></li>
+<li><a href="#toolhandlespy" title="toolhandles.py">toolhandles.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-custom_factory" title="🔍 custom_factory">🔍 custom_factory</a><ul class="nav">
-<li class=""><a href="#custom_factoryqmt" title="custom_factory.qmt">custom_factory.qmt</a></li>
-<li class=""><a href="#custom_factorypy" title="custom_factory.py">custom_factory.py</a></li>
+<li><a href="#🔍-custom_factory" title="🔍 custom_factory">🔍 custom_factory</a><ul class="nav">
+<li><a href="#custom_factoryqmt" title="custom_factory.qmt">custom_factory.qmt</a></li>
+<li><a href="#custom_factorypy" title="custom_factory.py">custom_factory.py</a></li>
 </ul>
 </li>
-<li class=""><a href="#🔍-heapprofiler" title="🔍 heapprofiler">🔍 heapprofiler</a><ul class="nav">
-<li class=""><a href="#heapprofilerqmt" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
-<li class=""><a href="#heapprofilerpy" title="heapprofiler.py">heapprofiler.py</a></li>
+<li><a href="#🔍-heapprofiler" title="🔍 heapprofiler">🔍 heapprofiler</a><ul class="nav">
+<li><a href="#heapprofilerqmt" title="heapprofiler.qmt">heapprofiler.qmt</a></li>
+<li><a href="#heapprofilerpy" title="heapprofiler.py">heapprofiler.py</a></li>
 </ul>
 </li>
 </ul>
@@ -943,17 +990,18 @@ ApplicationMgr(EvtMax=10,
     </div>
     <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:17px;display:none;"  >
         <div class="toc"><ul class="nav">
-<li><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
-<li><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
-<li><a href="#Introduction" title="Introduction">Introduction</a></li>
-<li><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
-<li><a href="#Key-Features" title="Key Features">Key Features</a></li>
+<li class=""><a href="#Gaudi-Testing-Infrastructure-Transition-from-QMTest-to-Pytest" title="Gaudi Testing Infrastructure: Transition from QMTest to Pytest">Gaudi Testing Infrastructure: Transition from QMTest to Pytest</a></li>
+<li class=""><a href="#Table-of-contents" title="Table of contents">Table of contents</a></li>
+<li class=""><a href="#Introduction" title="Introduction">Introduction</a></li>
+<li class=""><a href="#GaudiTestingGaudiExeTest-The-Gaudi-Extension-to-Pytest" title="GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest">GaudiTesting.GaudiExeTest: The Gaudi Extension to Pytest</a><ul class="nav">
+<li class=""><a href="#Key-Features" title="Key Features">Key Features</a></li>
 </ul>
 </li>
-<li><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
-<li><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
-<li><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
-<li><a href="#Example0" title="Example:">Example:</a></li>
+<li class=""><a href="#Test-Configuration" title="Test Configuration">Test Configuration</a></li>
+<li class=""><a href="#Output-Management-amp-Exception-Handling" title="Output Management &amp; Exception Handling">Output Management &amp; Exception Handling</a></li>
+<li class=""><a href="#Standard-Tests" title="Standard Tests">Standard Tests</a><ul class="nav">
+<li class=""><a href="#Example" title="Example:">Example:</a></li>
+<li class=""><a href="#Disable-Or-Override-A-Standard-Test" title="Disable Or Override A Standard Test:">Disable Or Override A Standard Test:</a></li>
 </ul>
 </li>
 <li class=""><a href="#Custom-Tests" title="Custom Tests">Custom Tests</a><ul class="nav">
@@ -965,23 +1013,25 @@ ApplicationMgr(EvtMax=10,
 </ul>
 </li>
 <li class=""><a href="#Reporting" title="Reporting">Reporting</a><ul class="nav">
-<li class=""><a href="#Standard-Test-Properties" title="Standard Test Properties">Standard Test Properties</a></li>
-<li class=""><a href="#Custom-Test-Properties" title="Custom Test Properties">Custom Test Properties</a></li>
+<li><a href="#Standard-Test-Properties" title="Standard Test Properties">Standard Test Properties</a></li>
+<li><a href="#Custom-Test-Properties" title="Custom Test Properties">Custom Test Properties</a></li>
 <li class=""><a href="#Example3" title="Example">Example</a></li>
 </ul>
 </li>
 <li class=""><a href="#Structured-Reference-Files" title="Structured Reference Files">Structured Reference Files</a><ul class="nav">
 <li class=""><a href="#Structure" title="Structure">Structure</a></li>
 <li class=""><a href="#Exampleyaml" title="Example.yaml">Example.yaml</a></li>
+<li class=""><a href="#Platform-Specific-Reference-Files" title="Platform-Specific Reference Files:">Platform-Specific Reference Files:</a><ul class="nav">
+<li class=""><a href="#Example4" title="Example:">Example:</a></li>
+</ul>
+</li>
 <li class=""><a href="#From-ref-to-yaml" title="From .ref to .yaml">From .ref to .yaml</a></li>
 </ul>
 </li>
 <li class=""><a href="#Transition-from-QMTest-to-Pytest" title="Transition from QMTest to Pytest">Transition from QMTest to Pytest</a><ul class="nav">
-<li class=""><a href="#Automated-Transition-Scripts" title="Automated Transition Scripts">Automated Transition Scripts</a><ul class="nav">
+<li class=""><a href="#Automated-Transition-Scripts" title="Automated Transition Scripts">Automated Transition Scripts</a></li>
 <li class=""><a href="#utilsref_to_yaml_converterpy" title="utils/ref_to_yaml_converter.py">utils/ref_to_yaml_converter.py</a></li>
 <li class=""><a href="#utilsqmt_to_pytest_converterpy" title="utils/qmt_to_pytest_converter.py">utils/qmt_to_pytest_converter.py</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class=""><a href="#Some-Examples" title="Some Examples">Some Examples</a><ul class="nav">
